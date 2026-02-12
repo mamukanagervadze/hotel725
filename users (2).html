@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>მომხმარებლების მართვა - HOTEL 725</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Sylfaen', Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        h2 { color: #2c3e50; margin-bottom: 20px; }
+
+
+    .toolbar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
+    .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; }
+    .btn-primary { background: #1a5490; color: white; }
+    .btn-primary:hover { background: #0d3b6e; }
+    .btn-warning { background: #ffc107; color: #333; }
+    .btn-danger { background: #e74c3c; color: white; }
+    .btn-danger:hover { background: #c0392b; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+    table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-radius: 8px; overflow: hidden; }
+    th { background: #1a5490; color: white; padding: 12px 15px; text-align: left; font-size: 13px; }
+    td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 13px; }
+    tr:hover { background: #f8f9fa; }
+
+    .role-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .role-admin { background: #e8f0fe; color: #1a5490; }
+    .role-manager { background: #e8f5e9; color: #2e7d32; }
+    .role-receptionist { background: #fff3e0; color: #e65100; }
+
+    .status-active { color: #28a745; }
+    .status-inactive { color: #e74c3c; }
+
+    .perm-tag { display: inline-block; padding: 2px 8px; background: #f0f0f0; border-radius: 10px; font-size: 10px; margin: 1px 2px; color: #555; }
+    .perm-tag.on { background: #d4edda; color: #155724; }
+    .perm-tag.off { background: #f8d7da; color: #721c24; text-decoration: line-through; }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: white; border-radius: 12px; padding: 30px; width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+    .modal h3 { margin-bottom: 20px; color: #2c3e50; }
+    .form-row { margin-bottom: 15px; }
+    .form-row label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #555; }
+    .form-row input, .form-row select { width: 100%; padding: 10px 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; font-family: inherit; }
+    .form-row input:focus, .form-row select:focus { border-color: #1a5490; outline: none; }
+    .form-row-inline { display: flex; gap: 15px; }
+    .form-row-inline .form-row { flex: 1; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+    .perms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .perm-check { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; cursor: pointer; }
+    .perm-check input { width: auto; }
+    .perm-check label { margin: 0; cursor: pointer; font-size: 12px; }
+    .hint { font-size: 11px; color: #999; margin-top: 4px; }
+</style>
+
+
+</head>
+<body>
+    <h2>👥 მომხმარებლების მართვა</h2>
+
+
+<div class="toolbar">
+    <button class="btn btn-primary" onclick="openAddModal()">➕ მომხმარებლის დამატება</button>
+    <span style="margin-left:auto; font-size:12px; color:#666;" id="statusMsg"></span>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>მომხმარებელი</th>
+            <th>სახელი</th>
+            <th>როლი</th>
+            <th>უფლებები</th>
+            <th>სტატუსი</th>
+            <th>ბოლო შესვლა</th>
+            <th>მოქმედება</th>
+        </tr>
+    </thead>
+    <tbody id="usersBody">
+        <tr><td colspan="7" style="text-align:center;color:#999;padding:30px;">იტვირთება...</td></tr>
+    </tbody>
+</table>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="userModal">
+    <div class="modal">
+        <h3 id="modalTitle">მომხმარებლის დამატება</h3>
+        <input type="hidden" id="editId">
+
+        <div class="form-row-inline">
+            <div class="form-row">
+                <label>მომხმარებლის სახელი (login) *</label>
+                <input type="text" id="mUsername" placeholder="მაგ: reception1" maxlength="50">
+            </div>
+            <div class="form-row">
+                <label>საჩვენებელი სახელი *</label>
+                <input type="text" id="mDisplayName" placeholder="მაგ: მარიამ კ.">
+            </div>
+        </div>
+
+        <div class="form-row-inline">
+            <div class="form-row">
+                <label>პაროლი *</label>
+                <input type="password" id="mPassword" placeholder="მინ. 6 სიმბოლო">
+                <div class="hint" id="passHint">ახალი მომხმარებლისთვის აუცილებელია</div>
+            </div>
+            <div class="form-row">
+                <label>როლი *</label>
+                <select id="mRole" onchange="onRoleChange()">
+                    <option value="receptionist">რეცეპციონისტი</option>
+                    <option value="manager">მენეჯერი</option>
+                    <option value="admin">ადმინისტრატორი</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row" id="statusRow" style="display:none;">
+            <label>სტატუსი</label>
+            <select id="mActive">
+                <option value="1">აქტიური</option>
+                <option value="0">გათიშული</option>
+            </select>
+        </div>
+
+        <div class="form-row" id="permsSection">
+            <label>უფლებები (გვერდები)</label>
+            <div class="perms-grid">
+                <div class="perm-check">
+                    <input type="checkbox" id="perm_bookings" checked>
+                    <label for="perm_bookings">📋 ჯავშნები</label>
+                </div>
+                <div class="perm-check">
+                    <input type="checkbox" id="perm_new_realization" checked>
+                    <label for="perm_new_realization">➕ ახალი ჩანაწერი</label>
+                </div>
+                <div class="perm-check">
+                    <input type="checkbox" id="perm_realizations" checked>
+                    <label for="perm_realizations">📊 რეალიზაციები</label>
+                </div>
+                <div class="perm-check">
+                    <input type="checkbox" id="perm_blocking" checked>
+                    <label for="perm_blocking">🗓️ Blocking Chart</label>
+                </div>
+                <div class="perm-check">
+                    <input type="checkbox" id="perm_rooms">
+                    <label for="perm_rooms">🚪 ოთახების მართვა</label>
+                </div>
+                <div class="perm-check">
+                    <input type="checkbox" id="perm_system">
+                    <label for="perm_system">⚙️ სისტემა/Backup</label>
+                </div>
+                <div class="perm-check">
+                    <input type="checkbox" id="perm_users">
+                    <label for="perm_users">👥 მომხმარებლები</label>
+                </div>
+            </div>
+            <div class="hint">ადმინს ყველა უფლება აქვს ავტომატურად</div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn" style="background:#eee;" onclick="closeModal()">გაუქმება</button>
+            <button class="btn btn-success" onclick="saveUser()">💾 შენახვა</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API = 'get_realizations.php';
+    let users = [];
+
+    const PERM_NAMES = {
+        bookings: '📋 ჯავშნები',
+        new_realization: '➕ ახალი ჩანაწერი',
+        realizations: '📊 რეალიზაციები',
+        blocking: '🗓️ Blocking',
+        rooms: '🚪 ოთახები',
+        system: '⚙️ სისტემა',
+        users: '👥 მომხმარებლები'
+    };
+
+    const ROLE_NAMES = {
+        admin: 'ადმინისტრატორი',
+        manager: 'მენეჯერი',
+        receptionist: 'რეცეპციონისტი'
+    };
+
+    document.addEventListener('DOMContentLoaded', () => loadUsers());
+
+    async function loadUsers() {
+        try {
+            const res = await fetch(API + '?action=users', { credentials: 'include' });
+            if (res.status === 401) {
+                document.getElementById('usersBody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:#e74c3c;">სესია ამოიწურა</td></tr>';
+                return;
+            }
+            const json = await res.json();
+            if (json.success) {
+                users = json.data;
+                renderUsers();
+                document.getElementById('statusMsg').textContent = users.length + ' მომხმარებელი';
+            } else {
+                document.getElementById('usersBody').innerHTML = '<tr><td colspan="7" style="color:#e74c3c;">' + (json.error || 'შეცდომა') + '</td></tr>';
+            }
+        } catch(e) {
+            document.getElementById('usersBody').innerHTML = '<tr><td colspan="7" style="color:#e74c3c;">კავშირის შეცდომა</td></tr>';
+        }
+    }
+
+    function renderUsers() {
+        const tbody = document.getElementById('usersBody');
+        if (users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;">მომხმარებლები არ არის</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = users.map(u => {
+            const perms = typeof u.permissions === 'string' ? JSON.parse(u.permissions || '{}') : (u.permissions || {});
+            const permTags = Object.entries(PERM_NAMES).map(([key, name]) => {
+                const on = u.role === 'admin' || perms[key];
+                return `<span class="perm-tag ${on ? 'on' : 'off'}">${name.split(' ')[1]}</span>`;
+            }).join('');
+
+            const lastLogin = u.last_login ? new Date(u.last_login).toLocaleString('ka-GE') : '—';
+            const isActive = u.is_active == 1;
+
+            return `<tr style="${!isActive ? 'opacity:0.5;' : ''}">
+                <td><strong>${esc(u.username)}</strong></td>
+                <td>${esc(u.display_name)}</td>
+                <td><span class="role-badge role-${u.role}">${ROLE_NAMES[u.role] || u.role}</span></td>
+                <td>${permTags}</td>
+                <td><span class="${isActive ? 'status-active' : 'status-inactive'}">${isActive ? '✅' : '❌'}</span></td>
+                <td style="font-size:11px;">${lastLogin}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="openEditModal(${u.id})">✏️</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id}, '${esc(u.username)}')">🗑️</button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    // === Modal ===
+    function openAddModal() {
+        document.getElementById('modalTitle').textContent = '➕ მომხმარებლის დამატება';
+        document.getElementById('editId').value = '';
+        document.getElementById('mUsername').value = '';
+        document.getElementById('mUsername').disabled = false;
+        document.getElementById('mDisplayName').value = '';
+        document.getElementById('mPassword').value = '';
+        document.getElementById('mRole').value = 'receptionist';
+        document.getElementById('passHint').textContent = 'აუცილებელია';
+        document.getElementById('statusRow').style.display = 'none';
+        setDefaultPerms('receptionist');
+        document.getElementById('userModal').classList.add('show');
+    }
+
+    function openEditModal(id) {
+        const u = users.find(x => x.id == id);
+        if (!u) return;
+        const perms = typeof u.permissions === 'string' ? JSON.parse(u.permissions || '{}') : (u.permissions || {});
+
+        document.getElementById('modalTitle').textContent = '✏️ ' + u.display_name;
+        document.getElementById('editId').value = u.id;
+        document.getElementById('mUsername').value = u.username;
+        document.getElementById('mUsername').disabled = true;
+        document.getElementById('mDisplayName').value = u.display_name;
+        document.getElementById('mPassword').value = '';
+        document.getElementById('mRole').value = u.role;
+        document.getElementById('mActive').value = u.is_active;
+        document.getElementById('passHint').textContent = 'ცარიელი = არ შეიცვლება';
+        document.getElementById('statusRow').style.display = 'block';
+
+        Object.keys(PERM_NAMES).forEach(key => {
+            const cb = document.getElementById('perm_' + key);
+            if (cb) cb.checked = u.role === 'admin' || !!perms[key];
+        });
+
+        onRoleChange();
+        document.getElementById('userModal').classList.add('show');
+    }
+
+    function closeModal() {
+        document.getElementById('userModal').classList.remove('show');
+    }
+
+    function onRoleChange() {
+        const role = document.getElementById('mRole').value;
+        const section = document.getElementById('permsSection');
+        if (role === 'admin') {
+            section.style.opacity = '0.5';
+            Object.keys(PERM_NAMES).forEach(k => { const cb = document.getElementById('perm_' + k); if(cb) cb.checked = true; });
+        } else {
+            section.style.opacity = '1';
+            if (!document.getElementById('editId').value) setDefaultPerms(role);
+        }
+    }
+
+    function setDefaultPerms(role) {
+        const defaults = {
+            receptionist: { bookings: true, new_realization: true, realizations: true, blocking: true, rooms: false, system: false, users: false },
+            manager: { bookings: true, new_realization: true, realizations: true, blocking: true, rooms: true, system: true, users: false },
+            admin: { bookings: true, new_realization: true, realizations: true, blocking: true, rooms: true, system: true, users: true }
+        };
+        const perms = defaults[role] || defaults.receptionist;
+        Object.entries(perms).forEach(([k, v]) => {
+            const cb = document.getElementById('perm_' + k);
+            if (cb) cb.checked = v;
+        });
+    }
+
+    function getPermissions() {
+        const perms = {};
+        Object.keys(PERM_NAMES).forEach(key => {
+            const cb = document.getElementById('perm_' + key);
+            if (cb) perms[key] = cb.checked;
+        });
+        return perms;
+    }
+
+    async function saveUser() {
+        const id = document.getElementById('editId').value;
+        const username = document.getElementById('mUsername').value.trim();
+        const displayName = document.getElementById('mDisplayName').value.trim();
+        const password = document.getElementById('mPassword').value;
+        const role = document.getElementById('mRole').value;
+
+        if (!username || !displayName) { alert('შეავსეთ სახელი და საჩვენებელი სახელი'); return; }
+        if (!id && !password) { alert('ახალი მომხმარებლისთვის პაროლი აუცილებელია'); return; }
+        if (password && password.length < 6) { alert('პაროლი მინიმუმ 6 სიმბოლო'); return; }
+
+        const payload = {
+            username, display_name: displayName, role,
+            permissions: getPermissions()
+        };
+        if (password) payload.password = password;
+        if (id) payload.is_active = parseInt(document.getElementById('mActive').value);
+
+        try {
+            const url = id ? API + '?action=user_update&id=' + id + '&_method=PUT' : API + '?action=user_add';
+            const res = await fetch(url, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+            if (json.success) { closeModal(); await loadUsers(); }
+            else alert('❌ ' + (json.error || 'შეცდომა'));
+        } catch(e) { alert('❌ კავშირის შეცდომა'); }
+    }
+
+    async function deleteUser(id, username) {
+        if (!confirm('ნამდვილად გსურთ ' + username + '-ის წაშლა?')) return;
+        try {
+            const res = await fetch(API + '?action=user_delete&id=' + id + '&_method=DELETE', { method: 'POST', credentials: 'include' });
+            const json = await res.json();
+            if (json.success) await loadUsers();
+            else alert('❌ ' + (json.error || ''));
+        } catch(e) { alert('❌ კავშირის შეცდომა'); }
+    }
+
+    function esc(s) { if(!s) return ''; const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+
+
+</body>
+</html>

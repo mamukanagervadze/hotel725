@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOTEL 725 — Blocking Chart</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; background: #f0f2f5; color: #222; font-size: 13px; }
+
+
+    /* Header */
+    .header {
+        background: linear-gradient(135deg, #1a5490 0%, #0d3b6e 100%);
+        color: white;
+        padding: 12px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .header h1 { font-size: 18px; font-weight: 600; letter-spacing: 1px; }
+    .header h1 span { font-weight: 300; opacity: 0.8; font-size: 13px; }
+    .header-links a { color: #a8d0f0; text-decoration: none; font-size: 12px; margin-left: 15px; }
+    .header-links a:hover { color: white; }
+
+    /* Toolbar */
+    .toolbar {
+        background: white;
+        border-bottom: 1px solid #ddd;
+        padding: 10px 20px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .nav-btn {
+        padding: 6px 14px;
+        border: 1px solid #ccc;
+        background: #f8f9fa;
+        cursor: pointer;
+        font-size: 12px;
+        font-family: inherit;
+        border-radius: 4px;
+        transition: all 0.15s;
+    }
+    .nav-btn:hover { background: #e8e8e8; }
+    .nav-btn.active { background: #1a5490; color: white; border-color: #1a5490; }
+    .nav-btn.today { background: #e74c3c; color: white; border-color: #c0392b; }
+    .nav-btn.today:hover { background: #c0392b; }
+    .toolbar .separator { width: 1px; height: 28px; background: #ddd; margin: 0 6px; }
+    .toolbar input[type="date"] { padding: 5px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; font-family: inherit; }
+    .toolbar select { padding: 5px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; font-family: inherit; }
+    .toolbar label { font-size: 11px; color: #666; font-weight: 600; }
+
+    /* Legend */
+    .legend {
+        background: white;
+        border-bottom: 1px solid #eee;
+        padding: 6px 20px;
+        display: flex;
+        gap: 20px;
+        font-size: 11px;
+        color: #555;
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .legend-color { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.1); }
+
+    /* Chart container */
+    .chart-wrap {
+        overflow: auto;
+        margin: 0;
+        background: white;
+        height: calc(100vh - 180px);
+    }
+
+    /* Grid table */
+    .chart-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        min-width: 100%;
+    }
+
+    /* Sticky room column */
+    .chart-table th.room-header,
+    .chart-table td.room-cell {
+        position: sticky;
+        left: 0;
+        z-index: 20;
+        background: white;
+        min-width: 150px;
+        max-width: 150px;
+        border-right: 2px solid #1a5490;
+    }
+    .chart-table th.room-header {
+        background: #1a5490;
+        color: white;
+        z-index: 30;
+    }
+
+    /* Date headers */
+    .chart-table thead { position: sticky; top: 0; z-index: 25; }
+    .chart-table th {
+        padding: 0;
+        text-align: center;
+        font-weight: 600;
+        font-size: 11px;
+        border: 1px solid #ddd;
+        background: #f0f4f8;
+        user-select: none;
+    }
+    .date-header {
+        padding: 3px 2px;
+        min-width: 38px;
+        line-height: 1.2;
+    }
+    .date-header .day-name { font-size: 9px; color: #888; text-transform: uppercase; }
+    .date-header .day-num { font-size: 13px; font-weight: 700; color: #333; }
+    .date-header .month { font-size: 8px; color: #999; }
+    .date-header.weekend { background: #fff3e0; }
+    .date-header.today-col { background: #e3f2fd; border-bottom: 2px solid #1a5490; }
+
+    /* Room cells */
+    .chart-table td {
+        border: 1px solid #e8e8e8;
+        padding: 0;
+        height: 36px;
+        min-width: 38px;
+        position: relative;
+        vertical-align: top;
+    }
+    .room-cell {
+        padding: 5px 10px !important;
+        font-size: 12px;
+        border-bottom: 1px solid #e0e0e0 !important;
+    }
+    .room-cell .room-num { font-weight: 700; color: #1a5490; }
+    .room-cell .room-type { font-size: 10px; color: #888; }
+
+    /* Today column highlight */
+    td.today-highlight { background: #f5f9ff; }
+    td.weekend-cell { background: #fef9f0; }
+
+    /* Booking blocks */
+    .booking-block {
+        position: absolute;
+        top: 2px;
+        height: 32px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        padding: 0 6px;
+        font-size: 10px;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        z-index: 10;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        transition: transform 0.1s, box-shadow 0.1s;
+        left: 2px;
+    }
+    .booking-block:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        z-index: 15;
+    }
+    .booking-block .block-text { overflow: hidden; text-overflow: ellipsis; }
+
+    /* Status colors */
+    .status-confirmed { background: linear-gradient(135deg, #27ae60, #219a52); }
+    .status-pending { background: linear-gradient(135deg, #f39c12, #e67e22); }
+    .status-cancelled { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+    .status-blocked { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
+
+    /* Tooltip */
+    .tooltip {
+        display: none;
+        position: fixed;
+        background: #2c3e50;
+        color: white;
+        padding: 10px 14px;
+        border-radius: 6px;
+        font-size: 12px;
+        z-index: 1000;
+        max-width: 280px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        line-height: 1.5;
+        pointer-events: none;
+    }
+    .tooltip.show { display: block; }
+    .tooltip.interactive { pointer-events: auto; }
+    .tooltip strong { color: #3498db; }
+    .tooltip .tt-row { margin: 2px 0; }
+    .tooltip .tt-unblock { margin-top: 8px; padding: 5px 12px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-family: inherit; }
+    .tooltip .tt-unblock:hover { background: #c0392b; }
+
+    /* Stats bar */
+    .stats-bar {
+        background: #1a5490;
+        color: white;
+        padding: 5px 20px;
+        font-size: 11px;
+        display: flex;
+        justify-content: space-between;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+    }
+
+    /* Block modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 200; }
+    .modal-overlay.show { display: flex; align-items: center; justify-content: center; }
+    .modal { background: white; border-radius: 8px; width: 420px; box-shadow: 0 8px 30px rgba(0,0,0,0.25); overflow: hidden; }
+    .modal-header { background: #1a5490; color: white; padding: 12px 18px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+    .modal-body { padding: 18px; }
+    .modal-body .field { margin-bottom: 12px; }
+    .modal-body label { display: block; font-size: 11px; color: #666; font-weight: 600; margin-bottom: 4px; }
+    .modal-body input, .modal-body select { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-family: inherit; }
+    .modal-body .btn-row { display: flex; gap: 8px; margin-top: 15px; }
+    .modal-body .btn { padding: 8px 20px; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; font-family: inherit; }
+    .modal-body .btn-primary { background: #1a5490; color: white; }
+    .modal-body .btn-primary:hover { background: #0d3b6e; }
+    .modal-body .btn-cancel { background: #eee; color: #333; }
+    .modal-body .btn-cancel:hover { background: #ddd; }
+</style>
+
+
+</head>
+<body>
+
+
+<div class="header">
+    <h1>🏨 HOTEL 725 <span>— Blocking Chart / ჯავშნების კალენდარი</span></h1>
+    <div class="header-links">
+        <a href="hotel-realization-classic.html">➕ ახალი ჯავშანი</a>
+        <a href="realizations-list.html">📊 რეალიზაციები</a>
+    </div>
+</div>
+
+<div class="toolbar">
+    <button class="nav-btn today" onclick="goToday()">📍 დღეს</button>
+    <button class="nav-btn" onclick="navigate(-7)">◀ 7 დღე</button>
+    <button class="nav-btn" onclick="navigate(7)">7 დღე ▶</button>
+    <button class="nav-btn" onclick="navigate(-14)">◀◀ 2 კვირა</button>
+    <button class="nav-btn" onclick="navigate(14)">2 კვირა ▶▶</button>
+    <div class="separator"></div>
+    <label>თარიღი:</label>
+    <input type="date" id="startDatePicker" onchange="setStartDate(this.value)">
+    <div class="separator"></div>
+    <label>პერიოდი:</label>
+    <select id="periodSelect" onchange="changePeriod(this.value)">
+        <option value="14">2 კვირა</option>
+        <option value="21">3 კვირა</option>
+        <option value="30" selected>1 თვე</option>
+        <option value="60">2 თვე</option>
+    </select>
+    <div class="separator"></div>
+    <label>ოთახის ტიპი:</label>
+    <select id="filterRoomType" onchange="renderChart()">
+        <option value="">ყველა</option>
+        <option value="Single">Single</option>
+        <option value="Double">Double</option>
+        <option value="Twin">Twin</option>
+        <option value="Triple">Triple</option>
+    </select>
+    <div class="separator"></div>
+    <label>სტატუსი:</label>
+    <select id="filterStatus" onchange="renderChart()">
+        <option value="">ყველა</option>
+        <option value="confirmed">✅ დადასტურებული</option>
+        <option value="pending">⏳ მომლოდინე</option>
+        <option value="cancelled">❌ გაუქმებული</option>
+        <option value="blocked">🔒 დაბლოკილი</option>
+    </select>
+    <div class="separator"></div>
+    <button class="nav-btn" onclick="openBlockModal()">🔒 ოთახის ბლოკირება</button>
+    <button class="nav-btn" onclick="openBlockListModal()">📋 ბლოკების სია</button>
+    <button class="nav-btn" onclick="loadData()" title="განახლება">🔄</button>
+</div>
+
+<div class="legend">
+    <div class="legend-item"><div class="legend-color" style="background:#27ae60;"></div> დადასტურებული</div>
+    <div class="legend-item"><div class="legend-color" style="background:#f39c12;"></div> მომლოდინე</div>
+    <div class="legend-item"><div class="legend-color" style="background:#e74c3c;"></div> გაუქმებული</div>
+    <div class="legend-item"><div class="legend-color" style="background:#95a5a6;"></div> დაბლოკილი</div>
+    <div class="legend-item"><div class="legend-color" style="background:#fff3e0; border-color:#ddd;"></div> შაბათ-კვირა</div>
+    <div class="legend-item"><div class="legend-color" style="background:#e3f2fd; border-color:#1a5490;"></div> დღეს</div>
+</div>
+
+<div class="chart-wrap" id="chartWrap"></div>
+
+<div class="stats-bar">
+    <span id="statsLeft">⏳ იტვირთება...</span>
+    <span id="statsRight"></span>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip" onmouseenter="clearTimeout(tooltipTimeout)" onmouseleave="hideTooltipNow()"></div>
+
+<!-- Block Room Modal -->
+<div class="modal-overlay" id="blockModal" onclick="if(event.target===this)closeBlockModal()">
+    <div class="modal">
+        <div class="modal-header">
+            <span>🔒 ოთახის ბლოკირება</span>
+            <button onclick="closeBlockModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="field">
+                <label>ოთახის ნომერი</label>
+                <select id="blockRoom"></select>
+            </div>
+            <div class="field">
+                <label>დაწყება</label>
+                <input type="date" id="blockFrom">
+            </div>
+            <div class="field">
+                <label>დასრულება</label>
+                <input type="date" id="blockTo">
+            </div>
+            <div class="field">
+                <label>მიზეზი</label>
+                <input type="text" id="blockReason" placeholder="მაგ: რემონტი, დაზიანება...">
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="saveBlock()">🔒 დაბლოკვა</button>
+                <button class="btn btn-cancel" onclick="closeBlockModal()">გაუქმება</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Block List Modal -->
+<div class="modal-overlay" id="blockListModal" onclick="if(event.target===this)closeBlockListModal()">
+    <div class="modal" style="width:550px; max-height:80vh; overflow-y:auto;">
+        <div class="modal-header" style="background:#95a5a6;">
+            <span>📋 დაბლოკილი ოთახების სია</span>
+            <button onclick="closeBlockListModal()">✕</button>
+        </div>
+        <div class="modal-body" id="blockListBody">
+            <p style="color:#999; text-align:center;">ბლოკები არ არის</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'get_realizations.php';
+
+    // ოთახები ბაზიდან ჩაიტვირთება
+    let ROOMS = [];
+
+    const DAY_NAMES_KA = ['კვ', 'ორ', 'სმ', 'ოთ', 'ხუ', 'პა', 'შბ'];
+    const MONTH_NAMES_KA = ['იან', 'თებ', 'მარ', 'აპრ', 'მაი', 'ივნ', 'ივლ', 'აგვ', 'სექ', 'ოქტ', 'ნოე', 'დეკ'];
+
+    let startDate = new Date();
+    startDate.setHours(0,0,0,0);
+    let daysToShow = 30;
+    let bookings = [];
+    let blockedRooms = [];
+
+    // Init
+    document.addEventListener('DOMContentLoaded', async () => {
+        document.getElementById('startDatePicker').value = fmt(startDate);
+        await loadRooms();
+        loadData();
+    });
+
+    async function loadRooms() {
+        try {
+            const res = await fetch(API_URL + '?action=rooms&active=1', { credentials: 'include' });
+            const json = await res.json();
+            if (json.success) {
+                ROOMS = json.data.map(r => ({
+                    number: r.room_number,
+                    type: r.room_type,
+                    floor: r.floor,
+                    price: parseFloat(r.default_price)
+                }));
+                populateBlockRoomSelect();
+            }
+        } catch(e) {
+            console.error('Rooms load error:', e);
+        }
+    }
+
+    // Load bookings + blocked rooms from DB
+    async function loadData() {
+        document.getElementById('statsLeft').textContent = '⏳ იტვირთება...';
+        try {
+            // ჯავშნები
+            const res = await fetch(API_URL + '?action=list', { credentials: 'include' });
+            const json = await res.json();
+
+            if (json.success) {
+                bookings = [];
+                json.data.forEach(r => {
+                    if (r.rooms && r.rooms.length > 0) {
+                        r.rooms.forEach(room => {
+                            const booking = {
+                                id: r.id,
+                                invoiceNumber: r.invoice_number,
+                                guestName: r.client_name,
+                                roomNumber: room.number,
+                                roomType: room.type,
+                                checkIn: r.check_in_date,
+                                checkOut: r.check_out_date,
+                                nights: r.nights_count,
+                                status: 'confirmed',
+                                price: room.price,
+                                totalCost: r.total_cost
+                            };
+                            // DEBUG: პირველი booking-ის თარიღების ლოგირება
+                            if (bookings.length === 0) {
+                                console.log('🔍 First booking data:', {
+                                    invoice: booking.invoiceNumber,
+                                    checkIn: booking.checkIn,
+                                    checkOut: booking.checkOut,
+                                    checkInDate: new Date(booking.checkIn),
+                                    checkOutDate: new Date(booking.checkOut)
+                                });
+                            }
+                            bookings.push(booking);
+                        });
+                    }
+                });
+            } else {
+                document.getElementById('statsLeft').textContent = '❌ შეცდომა: ' + (json.error || '');
+            }
+
+            // ბლოკირებული ოთახები
+            const bRes = await fetch(API_URL + '?action=blocks', { credentials: 'include' });
+            const bJson = await bRes.json();
+            if (bJson.success) {
+                blockedRooms = bJson.data.map(b => ({
+                    id: b.id,
+                    roomNumber: b.room_number,
+                    roomType: b.room_type || '',
+                    checkIn: b.block_from,
+                    checkOut: b.block_to,
+                    reason: b.reason || 'დაბლოკილი'
+                }));
+            }
+
+            renderChart();
+            updateStats();
+        } catch (e) {
+            document.getElementById('statsLeft').textContent = '❌ სერვერთან კავშირის შეცდომა';
+            console.error(e);
+        }
+    }
+
+ function renderChart() {
+    const filterType = document.getElementById('filterRoomType').value;
+    const filterStatus = document.getElementById('filterStatus').value;
+
+    let rooms = ROOMS;
+    if (filterType) rooms = rooms.filter(r => r.type === filterType);
+
+    // Build dates array
+    const dates = [];
+    for (let i = 0; i < daysToShow; i++) {
+        const d = new Date(startDate);
+        d.setDate(d.getDate() + i);
+        dates.push(d);
+    }
+
+    const todayStr = fmt(new Date());
+    const lastVisibleDate = dates[dates.length - 1]; // ბოლო ნაჩვენები თარიღი
+
+    // Build the chart HTML
+    let html = '<table class="chart-table"><thead><tr>';
+    html += '<th class="room-header">ოთახი</th>';
+
+    dates.forEach(d => {
+        const ds = fmt(d);
+        const dow = d.getDay();
+        const isWeekend = dow === 0 || dow === 6;
+        const isToday = ds === todayStr;
+        let cls = 'date-header';
+        if (isWeekend) cls += ' weekend';
+        if (isToday) cls += ' today-col';
+
+        html += '<th class="' + cls + '">' +
+            '<div class="day-name">' + DAY_NAMES_KA[dow] + '</div>' +
+            '<div class="day-num">' + d.getDate() + '</div>' +
+            '<div class="month">' + MONTH_NAMES_KA[d.getMonth()] + '</div>' +
+        '</th>';
+    });
+    html += '</tr></thead><tbody>';
+
+    // Filter bookings
+    let filteredBookings = [...bookings];
+    if (filterStatus && filterStatus !== 'blocked') {
+        filteredBookings = filteredBookings.filter(b => b.status === filterStatus);
+    }
+
+    // Combine with blocked rooms
+    let allBlocks = [...blockedRooms.map(b => ({
+        id: b.id,
+        roomNumber: b.roomNumber,
+        roomType: b.roomType || '',
+        checkIn: b.checkIn,
+        checkOut: b.checkOut,
+        status: 'blocked',
+        guestName: b.reason || 'დაბლოკილი',
+        invoiceNumber: '—',
+        nights: null,
+        price: null
+    }))];
+
+    if (filterStatus === 'blocked') {
+        filteredBookings = [];
+    }
+
+    rooms.forEach(room => {
+        html += '<tr>';
+        html += '<td class="room-cell">' +
+            '<div class="room-num">' + room.number + '</div>' +
+            '<div class="room-type">' + room.type + '</div>' +
+        '</td>';
+
+        // Get bookings for this room
+        const roomBookings = filteredBookings.filter(b => b.roomNumber === room.number);
+        const roomBlocks = allBlocks.filter(b => b.roomNumber === room.number);
+        const allItems = [...roomBookings, ...roomBlocks];
+
+        // For each day cell
+        dates.forEach((d, colIdx) => {
+            const ds = fmt(d);
+            const dow = d.getDay();
+            const isWeekend = dow === 0 || dow === 6;
+            const isToday = ds === todayStr;
+            let tdClass = '';
+            if (isToday) tdClass = 'today-highlight';
+            else if (isWeekend) tdClass = 'weekend-cell';
+
+            html += '<td class="' + tdClass + '" data-date="' + ds + '" data-room="' + room.number + '">';
+
+            // Find bookings that are active on this day
+            allItems.forEach(b => {
+                const cin = new Date(b.checkIn);
+                const cout = new Date(b.checkOut);
+                const current = new Date(ds);
+
+                // Check if current day is within booking range [cin, cout)
+                if (current >= cin && current < cout) {
+                    // Check if this is the first visible day of this booking
+                    const prevDay = new Date(current);
+                    prevDay.setDate(prevDay.getDate() - 1);
+                    
+                    // Show block if:
+                    // 1. This is the first column (no previous day in view), OR
+                    // 2. Previous day was NOT part of this booking (booking just started)
+                    // Use string comparison to avoid timezone issues
+                    const prevDayStr = fmt(prevDay);
+                    const cinStr = fmt(cin);
+                    const coutStr = fmt(cout);
+                    const isFirstVisibleDay = (colIdx === 0) || (prevDayStr < cinStr || prevDayStr >= coutStr);
+                    
+                    if (isFirstVisibleDay) {
+                        // Calculate span: from current day to checkout or end of visible period
+                        const checkoutDate = new Date(b.checkOut);
+                        
+                        // Find how many days until checkout OR end of visible period
+                        let spanDays = 0;
+                        for (let i = colIdx; i < dates.length; i++) {
+                            const checkDate = dates[i];
+                            // Compare dates properly - both should be normalized to midnight
+                            const checkDateStr = fmt(checkDate);
+                            const checkoutStr = fmt(checkoutDate);
+                            if (checkDateStr < checkoutStr) {
+                                spanDays++;
+                            } else {
+                                break;
+                            }
+                        }
+                        
+                        // Width calculation: each day is 38px, minus small gap
+                        const widthPx = spanDays * 38 - 4;
+
+                        const statusClass = 'status-' + (b.status || 'confirmed');
+                        const label = b.status === 'blocked' 
+                            ? '🔒 ' + b.guestName 
+                            : b.guestName;
+
+                        // Escape the booking data for tooltip
+                        const bookingData = JSON.stringify(b).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+                        html += '<div class="booking-block ' + statusClass + '" ' +
+                            'style="width:' + widthPx + 'px;" ' +
+                            'onmouseenter="showTooltip(event, ' + bookingData + ')" ' +
+                            'onmouseleave="hideTooltip()" ' +
+                            'onmousemove="moveTooltip(event)">' +
+                            '<span class="block-text">' + esc(label) + '</span>' +
+                        '</div>';
+                    }
+                }
+            });
+
+            html += '</td>';
+        });
+
+        html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('chartWrap').innerHTML = html;
+}
+
+    function updateStats() {
+        const today = fmt(new Date());
+        const occupiedToday = bookings.filter(b => b.checkIn <= today && b.checkOut > today && b.status !== 'cancelled').length;
+        const blockedToday = blockedRooms.filter(b => b.checkIn <= today && b.checkOut > today).length;
+        const totalRooms = ROOMS.length;
+        const available = totalRooms - occupiedToday - blockedToday;
+        const occupancy = ((occupiedToday / totalRooms) * 100).toFixed(0);
+
+        document.getElementById('statsLeft').textContent = 
+            `სულ ოთახები: ${totalRooms} | დაკავებული: ${occupiedToday} | დაბლოკილი: ${blockedToday} | თავისუფალი: ${available} | დატვირთვა: ${occupancy}%`;
+        document.getElementById('statsRight').textContent = 
+            `სულ ჯავშნები: ${bookings.length} | პერიოდი: ${fmtGeo(startDate)} — ${fmtGeo(addDays(startDate, daysToShow-1))}`;
+    }
+
+    // Navigation
+    function goToday() {
+        startDate = new Date();
+        startDate.setHours(0,0,0,0);
+        document.getElementById('startDatePicker').value = fmt(startDate);
+        renderChart();
+        updateStats();
+    }
+
+    function navigate(days) {
+        startDate = addDays(startDate, days);
+        document.getElementById('startDatePicker').value = fmt(startDate);
+        renderChart();
+        updateStats();
+    }
+
+    function setStartDate(val) {
+        startDate = new Date(val);
+        startDate.setHours(0,0,0,0);
+        renderChart();
+        updateStats();
+    }
+
+    function changePeriod(val) {
+        daysToShow = parseInt(val);
+        renderChart();
+        updateStats();
+    }
+
+    // Tooltip
+    let tooltipTimeout = null;
+
+    function showTooltip(e, booking) {
+        clearTimeout(tooltipTimeout);
+        const tt = document.getElementById('tooltip');
+        const statusNames = {
+            'confirmed': '✅ დადასტურებული',
+            'pending': '⏳ მომლოდინე',
+            'cancelled': '❌ გაუქმებული',
+            'blocked': '🔒 დაბლოკილი'
+        };
+        const cin = booking.checkIn ? fmtGeo(new Date(booking.checkIn)) : '—';
+        const cout = booking.checkOut ? fmtGeo(new Date(booking.checkOut)) : '—';
+
+        const isBlocked = booking.status === 'blocked';
+        const unblockBtn = isBlocked 
+            ? `<div class="tt-row"><button class="tt-unblock" onclick="unblockRoom('${booking.id}')">🔓 ბლოკის მოხსნა</button></div>` 
+            : '';
+
+        tt.innerHTML = `
+            <div class="tt-row"><strong>${esc(booking.guestName || '')}</strong></div>
+            <div class="tt-row">ინვოისი: ${esc(booking.invoiceNumber || '—')}</div>
+            <div class="tt-row">ოთახი: ${esc(booking.roomNumber || '')} (${esc(booking.roomType || '')})</div>
+            <div class="tt-row">შესვლა: ${cin}</div>
+            <div class="tt-row">გასვლა: ${cout}</div>
+            <div class="tt-row">ღამეები: ${booking.nights || '—'}</div>
+            <div class="tt-row">ფასი: ${booking.price || '—'} ლ/ღამე</div>
+            <div class="tt-row">სტატუსი: ${statusNames[booking.status] || booking.status}</div>
+            ${unblockBtn}
+        `;
+        tt.classList.add('show');
+        if (isBlocked) tt.classList.add('interactive');
+        else tt.classList.remove('interactive');
+        moveTooltip(e);
+    }
+
+    function moveTooltip(e) {
+        const tt = document.getElementById('tooltip');
+        tt.style.left = (e.clientX + 15) + 'px';
+        tt.style.top = (e.clientY + 10) + 'px';
+    }
+
+    function hideTooltip() {
+        const tt = document.getElementById('tooltip');
+        if (tt.classList.contains('interactive')) {
+            tooltipTimeout = setTimeout(() => {
+                tt.classList.remove('show', 'interactive');
+            }, 300);
+        } else {
+            tt.classList.remove('show', 'interactive');
+        }
+    }
+
+    // Unblock room via API
+    async function unblockRoom(blockId) {
+        if (!confirm('ნამდვილად გსურთ ბლოკის მოხსნა?')) return;
+        try {
+            const res = await fetch(API_URL + '?action=unblock&id=' + blockId + '&_method=DELETE', {
+                method: 'POST',
+                credentials: 'include'
+            });
+            const json = await res.json();
+            if (json.success) {
+                hideTooltipNow();
+                await loadData();
+            } else {
+                alert('❌ ' + (json.error || 'შეცდომა'));
+            }
+        } catch(e) {
+            alert('❌ სერვერთან კავშირის შეცდომა');
+        }
+    }
+
+    function hideTooltipNow() {
+        clearTimeout(tooltipTimeout);
+        const tt = document.getElementById('tooltip');
+        tt.classList.remove('show', 'interactive');
+    }
+
+    // Block List Modal
+    function openBlockListModal() {
+        const body = document.getElementById('blockListBody');
+        if (blockedRooms.length === 0) {
+            body.innerHTML = '<p style="color:#999; text-align:center; padding:20px;">დაბლოკილი ოთახები არ არის</p>';
+        } else {
+            let html = '<table style="width:100%; border-collapse:collapse; font-size:12px;">';
+            html += '<tr style="background:#f0f0f0;"><th style="padding:8px; text-align:left; border:1px solid #ddd;">ოთახი</th><th style="padding:8px; text-align:left; border:1px solid #ddd;">დაწყება</th><th style="padding:8px; text-align:left; border:1px solid #ddd;">დასრულება</th><th style="padding:8px; text-align:left; border:1px solid #ddd;">მიზეზი</th><th style="padding:8px; text-align:center; border:1px solid #ddd;">მოქმედება</th></tr>';
+            blockedRooms.forEach(b => {
+                html += `<tr>
+                    <td style="padding:6px 8px; border:1px solid #ddd; font-weight:700;">${esc(b.roomNumber)}</td>
+                    <td style="padding:6px 8px; border:1px solid #ddd;">${fmtGeo(new Date(b.checkIn))}</td>
+                    <td style="padding:6px 8px; border:1px solid #ddd;">${fmtGeo(new Date(b.checkOut))}</td>
+                    <td style="padding:6px 8px; border:1px solid #ddd;">${esc(b.reason || '—')}</td>
+                    <td style="padding:6px 8px; border:1px solid #ddd; text-align:center;">
+                        <button onclick="unblockFromList('${b.id}')" style="padding:4px 10px; background:#e74c3c; color:white; border:none; border-radius:3px; cursor:pointer; font-size:11px;">🔓 მოხსნა</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</table>';
+            body.innerHTML = html;
+        }
+        document.getElementById('blockListModal').classList.add('show');
+    }
+
+    function closeBlockListModal() {
+        document.getElementById('blockListModal').classList.remove('show');
+    }
+
+    async function unblockFromList(blockId) {
+        if (!confirm('ნამდვილად გსურთ ბლოკის მოხსნა?')) return;
+        try {
+            const res = await fetch(API_URL + '?action=unblock&id=' + blockId + '&_method=DELETE', {
+                method: 'POST',
+                credentials: 'include'
+            });
+            const json = await res.json();
+            if (json.success) {
+                await loadData();
+                openBlockListModal(); // refresh the list
+            } else {
+                alert('❌ ' + (json.error || 'შეცდომა'));
+            }
+        } catch(e) {
+            alert('❌ სერვერთან კავშირის შეცდომა');
+        }
+    }
+
+    // Block room
+    function populateBlockRoomSelect() {
+        const sel = document.getElementById('blockRoom');
+        sel.innerHTML = ROOMS.map(r => 
+            `<option value="${r.number}">${r.number} — ${r.type}</option>`
+        ).join('');
+    }
+
+    function openBlockModal() {
+        const today = fmt(new Date());
+        document.getElementById('blockFrom').value = today;
+        document.getElementById('blockTo').value = '';
+        document.getElementById('blockReason').value = '';
+        document.getElementById('blockModal').classList.add('show');
+    }
+
+    function closeBlockModal() {
+        document.getElementById('blockModal').classList.remove('show');
+    }
+
+    async function saveBlock() {
+        const roomNumber = document.getElementById('blockRoom').value;
+        const from = document.getElementById('blockFrom').value;
+        const to = document.getElementById('blockTo').value;
+        const reason = document.getElementById('blockReason').value;
+
+        if (!from || !to) { alert('გთხოვთ მიუთითოთ თარიღები'); return; }
+        if (to <= from) { alert('დასრულების თარიღი უნდა იყოს დაწყების შემდეგ'); return; }
+
+        const room = ROOMS.find(r => r.number === roomNumber);
+
+        try {
+            const res = await fetch(API_URL + '?action=block', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    roomNumber: roomNumber,
+                    roomType: room ? room.type : '',
+                    blockFrom: from,
+                    blockTo: to,
+                    reason: reason || 'დაბლოკილი'
+                })
+            });
+            const json = await res.json();
+            if (json.success) {
+                closeBlockModal();
+                await loadData(); // reload from DB
+            } else {
+                alert('❌ ' + (json.error || 'შეცდომა'));
+            }
+        } catch(e) {
+            alert('❌ სერვერთან კავშირის შეცდომა');
+            console.error(e);
+        }
+    }
+
+    // ბლოკები MySQL-ში ინახება, loadData() ჩატვირთავს
+    // (localStorage აღარ გამოიყენება)
+
+    // Helpers
+    function fmt(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${dd}`;
+    }
+
+    function fmtGeo(d) {
+        return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+    }
+
+    function addDays(d, n) {
+        const r = new Date(d);
+        r.setDate(r.getDate() + n);
+        return r;
+    }
+
+    function esc(s) {
+        if (!s) return '';
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    // Keyboard
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeBlockModal();
+        if (e.key === 'ArrowLeft' && !e.target.matches('input,select')) navigate(-7);
+        if (e.key === 'ArrowRight' && !e.target.matches('input,select')) navigate(7);
+    });
+</script>
+
+
+</body>
+</html>

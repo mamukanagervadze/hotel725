@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOTEL 725 - რეალიზაციების სია</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Calibri, 'Segoe UI', Arial, sans-serif; background: #fff; color: #222; font-size: 13px; }
+
+
+    .topbar { background: #217346; color: white; padding: 8px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+    .topbar .title { font-weight: 600; font-size: 14px; }
+    .topbar a { color: #c6efce; text-decoration: none; font-size: 12px; }
+    .topbar a:hover { color: white; }
+
+    .toolbar { background: #f3f3f3; border-bottom: 1px solid #d4d4d4; padding: 8px 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .toolbar input, .toolbar select { border: 1px solid #b4b4b4; padding: 4px 8px; font-size: 12px; font-family: inherit; background: white; }
+    .toolbar input:focus, .toolbar select:focus { outline: none; border-color: #217346; }
+    .toolbar input { width: 150px; }
+    .toolbar label { font-size: 11px; color: #555; font-weight: 600; margin-right: 3px; }
+    .toolbar .separator { width: 1px; height: 22px; background: #ccc; margin: 0 5px; }
+    .toolbar .stats { margin-left: auto; font-size: 12px; color: #444; }
+    .toolbar .stats strong { color: #217346; }
+
+    .tb-btn { background: #e7e7e7; border: 1px solid #b4b4b4; padding: 4px 12px; font-size: 12px; cursor: pointer; font-family: inherit; }
+    .tb-btn:hover { background: #d0d0d0; }
+    .tb-btn.green { background: #217346; color: white; border-color: #1a5c38; }
+    .tb-btn.green:hover { background: #1a5c38; }
+
+    .table-wrap { overflow-x: auto; border: 1px solid #b4b4b4; }
+    table { width: 100%; border-collapse: collapse; min-width: 1500px; }
+    th, td { border: 1px solid #d4d4d4; padding: 5px 8px; text-align: left; white-space: nowrap; }
+    thead th { background: #e2efda; color: #222; font-weight: 700; font-size: 12px; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #217346; }
+    .row-num { background: #f3f3f3; color: #888; text-align: center; width: 35px; font-size: 11px; border-right: 2px solid #d4d4d4; }
+    thead .row-num { background: #d9e2d0; }
+    tbody tr:hover { background: #e8f5e9; }
+    tbody tr:nth-child(even) { background: #fafafa; }
+    tbody tr:nth-child(even):hover { background: #e8f5e9; }
+
+    .cell-invoice { font-weight: 700; color: #1a5c38; }
+    .cell-money { text-align: right; font-weight: 600; color: #c0392b; }
+    .cell-money.total { color: #217346; font-size: 14px; }
+    .cell-num { text-align: center; }
+    .cell-date { font-family: Consolas, monospace; font-size: 12px; }
+    .cell-badge { display: inline-block; padding: 1px 8px; border-radius: 2px; font-size: 11px; font-weight: 600; }
+    .badge-cash { background: #d5f5e3; color: #1e8449; }
+    .badge-card { background: #d6eaf8; color: #2471a3; }
+    .badge-transfer { background: #fdebd0; color: #ca6f1e; }
+    .badge-online { background: #e8daef; color: #7d3c98; }
+    .cell-check { text-align: center; font-size: 14px; }
+    .cell-actions { text-align: center; white-space: nowrap; }
+    .cell-actions button { background: none; border: 1px solid #ccc; padding: 2px 8px; cursor: pointer; font-size: 11px; margin: 0 1px; }
+    .cell-actions button:hover { background: #eee; }
+    .cell-actions button.del:hover { background: #fadbd8; color: #c0392b; border-color: #c0392b; }
+    .cell-actions button.print:hover { background: #d6eaf8; color: #1a5490; border-color: #1a5490; }
+
+    .summary-bar { background: #f3f3f3; border-top: 2px solid #217346; padding: 8px 20px; display: flex; gap: 30px; font-size: 12px; }
+    .summary-bar .item strong { color: #217346; }
+    .statusbar { background: #217346; color: white; padding: 4px 15px; font-size: 11px; display: flex; justify-content: space-between; }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 100; }
+    .modal-overlay.show { display: flex; align-items: center; justify-content: center; }
+    .modal { background: white; border: 1px solid #999; width: 620px; max-height: 80vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+    .modal-header { background: #217346; color: white; padding: 10px 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header button { background: none; border: none; color: white; font-size: 18px; cursor: pointer; }
+    .modal-body { padding: 15px; }
+    .detail-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .detail-table td { padding: 6px 10px; border-bottom: 1px solid #eee; }
+    .detail-table td:first-child { font-weight: 600; color: #555; width: 180px; background: #f9f9f9; }
+    .detail-sub { margin: 8px 0; font-size: 12px; }
+    .detail-sub table { width: 100%; border-collapse: collapse; }
+    .detail-sub th { background: #f0f0f0; padding: 4px 8px; text-align: left; font-size: 11px; border: 1px solid #ddd; }
+    .detail-sub td { padding: 4px 8px; border: 1px solid #ddd; }
+
+    /* Language modal */
+    .lang-modal { background: white; border: 1px solid #999; width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; }
+    .lang-modal .modal-header { background: #1a5490; }
+    .lang-modal .modal-body { padding: 30px; text-align: center; }
+    .lang-btn { padding: 15px 35px; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; background: white; margin: 0 8px; font-family: inherit; transition: all 0.2s; }
+    .lang-btn:hover { border-color: #1a5490; background: #f0f4f8; }
+
+    /* Invoice print overlay */
+    .invoice-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; overflow-y: auto; }
+    .invoice-overlay.show { display: block; }
+    .invoice-toolbar { position: fixed; top: 0; left: 0; right: 0; background: #1a5490; color: white; padding: 10px 20px; z-index: 201; display: flex; justify-content: space-between; align-items: center; }
+    .invoice-toolbar button { padding: 8px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; }
+    .invoice-toolbar .btn-print { background: #27ae60; color: white; }
+    .invoice-toolbar .btn-print:hover { background: #229954; }
+    .invoice-toolbar .btn-close { background: rgba(255,255,255,0.2); color: white; }
+    .invoice-toolbar .btn-close:hover { background: rgba(255,255,255,0.3); }
+    .invoice-frame { margin-top: 50px; background: white; max-width: 820px; margin-left: auto; margin-right: auto; box-shadow: 0 5px 30px rgba(0,0,0,0.3); }
+
+    .no-data { text-align: center; padding: 60px; color: #999; font-size: 15px; }
+    .loading { text-align: center; padding: 40px; color: #217346; }
+
+    @media print {
+        .topbar, .toolbar, .table-wrap, .summary-bar, .statusbar, .modal-overlay, .invoice-toolbar { display: none !important; }
+        .invoice-overlay { position: static; background: none; }
+        .invoice-overlay.show { display: block; }
+        .invoice-frame { margin: 0; box-shadow: none; }
+    }
+</style>
+
+
+</head>
+<body>
+
+
+<div class="topbar">
+    <span class="title">📊 HOTEL 725 — რეალიზაციების სია</span>
+    <a href="hotel-realization-classic.html">➕ ახალი ჩანაწერი</a>
+</div>
+
+<div class="toolbar">
+    <label>ძებნა:</label>
+    <input type="text" id="searchInput" placeholder="ინვოისი, სახელი..." oninput="filterTable()">
+    <div class="separator"></div>
+    <label>თარიღი:</label>
+    <input type="date" id="filterDateFrom" onchange="filterTable()">
+    <span style="color:#999">—</span>
+    <input type="date" id="filterDateTo" onchange="filterTable()">
+    <div class="separator"></div>
+    <label>გადახდა:</label>
+    <select id="filterPayment" onchange="filterTable()">
+        <option value="">ყველა</option>
+        <option value="cash">ნაღდი</option>
+        <option value="card">ბარათი</option>
+        <option value="transfer">ტრანსფერი</option>
+        <option value="online">ონლაინ</option>
+    </select>
+    <div class="separator"></div>
+    <button class="tb-btn" onclick="clearFilters()">✕ გასუფთავება</button>
+    <button class="tb-btn green" onclick="exportExcel()">📥 Excel</button>
+    <div class="stats">
+        სულ: <strong id="statTotal">0</strong> | თანხა: <strong id="statSum">0ლ</strong> | ნაჩვენები: <strong id="statFiltered">0</strong>
+    </div>
+</div>
+
+<div class="table-wrap">
+    <div class="loading" id="loadingMsg">⏳ იტვირთება...</div>
+    <table id="dataTable" style="display:none;">
+        <thead><tr>
+            <th class="row-num">#</th><th>ინვოისი</th><th>დამკვეთი</th><th>ეროვნება</th><th>შესვლა</th><th>გასვლა</th><th>ღამე</th><th>ოთახის ტიპი</th><th>ნომერი</th><th>ოთახ.</th><th>ფასი/ღამე</th><th>თანხა</th><th>გადახდა</th><th>🍳</th><th>🚗</th><th>თარიღი</th><th>მოქმედება</th>
+        </tr></thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+    <div class="no-data" id="noData" style="display:none;">ჩანაწერები არ მოიძებნა</div>
+</div>
+
+<div class="summary-bar">
+    <div class="item">სულ: <strong id="sumRevenue">0ლ</strong></div>
+    <div class="item">ნაღდი: <strong id="sumCash">0ლ</strong></div>
+    <div class="item">ბარათი: <strong id="sumCard">0ლ</strong></div>
+    <div class="item">ტრანსფერი: <strong id="sumTransfer">0ლ</strong></div>
+    <div class="item">ონლაინ: <strong id="sumOnline">0ლ</strong></div>
+    <div class="item">საუზმე: <strong id="sumBreakfast">0</strong></div>
+    <div class="item">ტრანსფ.: <strong id="sumTransferService">0</strong></div>
+</div>
+
+<div class="statusbar">
+    <span id="statusLeft">მზადაა</span>
+    <span>travelba_hotel_booking → realizations</span>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+        <div class="modal-header"><span id="modalTitle">დეტალები</span><button onclick="closeModal()">✕</button></div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<!-- Invoice Settings Modal -->
+<div class="modal-overlay" id="langModal" onclick="if(event.target===this)closeLangModal()">
+    <div class="lang-modal" style="width:480px;max-width:95vw;">
+        <div class="modal-header"><span>🖨️ ინვოისის ბეჭდვა</span><button onclick="closeLangModal()">✕</button></div>
+        <div class="modal-body" id="invoiceSettingsBody">
+        </div>
+    </div>
+</div>
+
+<!-- Invoice Preview Overlay -->
+<div class="invoice-overlay" id="invoiceOverlay">
+    <div class="invoice-toolbar">
+        <span>🖨️ ინვოისის პრინტი</span>
+        <div>
+            <button class="btn-print" onclick="window.print()">🖨️ ბეჭდვა</button>
+            <button class="btn-close" onclick="closeInvoice()" style="margin-left:10px;">✕ დახურვა</button>
+        </div>
+    </div>
+    <div class="invoice-frame" id="invoiceContent"></div>
+</div>
+
+<script>
+    const API_URL = 'get_realizations.php';
+    let allData = [];
+    let filteredData = [];
+    let currentPrintId = null;
+
+    const nationNames = { 'georgia':'საქართველო','russia':'რუსეთი','turkey':'თურქეთი','armenia':'სომხეთი','azerbaijan':'აზერბაიჯანი','ukraine':'უკრაინა','usa':'აშშ','uk':'დიდი ბრიტანეთი','germany':'გერმანია','france':'საფრანგეთი','israel':'ისრაელი','china':'ჩინეთი','india':'ინდოეთი','other':'სხვა' };
+    const nationNamesEn = { 'georgia':'Georgia','russia':'Russia','turkey':'Turkey','armenia':'Armenia','azerbaijan':'Azerbaijan','ukraine':'Ukraine','usa':'USA','uk':'United Kingdom','germany':'Germany','france':'France','israel':'Israel','china':'China','india':'India','other':'Other' };
+    const payNames = { 'cash':'ნაღდი','card':'ბარათი','transfer':'ტრანსფერი','online':'ონლაინ' };
+    const payNamesEn = { 'cash':'Cash','card':'Card','transfer':'Bank Transfer','online':'Online' };
+    const payClass = { 'cash':'badge-cash','card':'badge-card','transfer':'badge-transfer','online':'badge-online' };
+
+    // === ID-ის შედარების ფუნქცია (string/number safe) ===
+    function findById(id) {
+        return allData.find(x => String(x.id) === String(id));
+    }
+
+    document.addEventListener('DOMContentLoaded', loadData);
+
+    async function loadData() {
+        document.getElementById('loadingMsg').style.display = 'block';
+        document.getElementById('dataTable').style.display = 'none';
+        try {
+            const res = await fetch(API_URL + '?action=list', { credentials: 'include' });
+            const json = await res.json();
+            if (json.success) {
+                allData = json.data;
+                filteredData = [...allData];
+                renderTable(); updateStats();
+                document.getElementById('statusLeft').textContent = `ჩაიტვირთა ${allData.length} ჩანაწერი`;
+            } else {
+                document.getElementById('loadingMsg').innerHTML = '❌ ' + json.error;
+            }
+        } catch (e) {
+            document.getElementById('loadingMsg').innerHTML = '❌ სერვერთან კავშირის შეცდომა';
+        }
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        document.getElementById('loadingMsg').style.display = 'none';
+        if (filteredData.length === 0) { document.getElementById('dataTable').style.display='none'; document.getElementById('noData').style.display='block'; return; }
+        document.getElementById('noData').style.display = 'none';
+        document.getElementById('dataTable').style.display = 'table';
+
+        tbody.innerHTML = filteredData.map((r, i) => {
+            const roomTypes = r.rooms.map(rm => rm.type).join(', ') || '—';
+            const roomNums = r.rooms.map(rm => rm.number).join(', ') || '—';
+            const avgPrice = r.rooms.length > 0 ? (r.rooms.reduce((s,rm) => s+parseFloat(rm.price),0)/r.rooms.length).toFixed(0) : '0';
+            return `<tr>
+                <td class="row-num">${i+1}</td>
+                <td class="cell-invoice">${esc(r.invoice_number)}</td>
+                <td>${esc(r.client_name)}</td>
+                <td>${nationNames[r.nationality]||r.nationality}</td>
+                <td class="cell-date">${fmtDate(r.check_in_date)}</td>
+                <td class="cell-date">${fmtDate(r.check_out_date)}</td>
+                <td class="cell-num">${r.nights_count}</td>
+                <td>${esc(roomTypes)}</td>
+                <td>${esc(roomNums)}</td>
+                <td class="cell-num">${r.room_count}</td>
+                <td class="cell-money">${avgPrice} ლ</td>
+                <td class="cell-money total">${parseFloat(r.total_cost).toFixed(2)} ლ</td>
+                <td><span class="cell-badge ${payClass[r.payment_type]||''}">${payNames[r.payment_type]||r.payment_type}</span></td>
+                <td class="cell-check">${r.has_breakfast==1?'✅':'—'}</td>
+                <td class="cell-check">${r.has_transfer==1?'✅':'—'}</td>
+                <td class="cell-date">${fmtDateTime(r.created_at)}</td>
+                <td class="cell-actions">
+                    <button onclick="showDetail('${r.id}')" title="დეტალები">👁</button>
+                    <button class="print" onclick="openPrintModal('${r.id}')" title="ინვოისი">🖨️</button>
+                    <button class="del" onclick="deleteRecord('${r.id}')" title="წაშლა">🗑</button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    function filterTable() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const dateFrom = document.getElementById('filterDateFrom').value;
+        const dateTo = document.getElementById('filterDateTo').value;
+        const payment = document.getElementById('filterPayment').value;
+        filteredData = allData.filter(r => {
+            if (search && !(r.invoice_number+' '+r.client_name).toLowerCase().includes(search)) return false;
+            if (dateFrom && r.check_in_date < dateFrom) return false;
+            if (dateTo && r.check_in_date > dateTo) return false;
+            if (payment && r.payment_type !== payment) return false;
+            return true;
+        });
+        renderTable(); updateStats();
+    }
+
+    function clearFilters() {
+        document.getElementById('searchInput').value=''; document.getElementById('filterDateFrom').value='';
+        document.getElementById('filterDateTo').value=''; document.getElementById('filterPayment').value='';
+        filteredData=[...allData]; renderTable(); updateStats();
+    }
+
+    function updateStats() {
+        const sum = filteredData.reduce((s,r)=>s+parseFloat(r.total_cost),0);
+        document.getElementById('statTotal').textContent=allData.length;
+        document.getElementById('statSum').textContent=sum.toFixed(2)+' ლ';
+        document.getElementById('statFiltered').textContent=filteredData.length;
+        document.getElementById('sumRevenue').textContent=sum.toFixed(2)+' ლ';
+        ['cash','card','transfer','online'].forEach(t=>{
+            const s=filteredData.filter(r=>r.payment_type===t).reduce((a,r)=>a+parseFloat(r.total_cost),0);
+            document.getElementById('sum'+t.charAt(0).toUpperCase()+t.slice(1)).textContent=s.toFixed(2)+' ლ';
+        });
+        document.getElementById('sumBreakfast').textContent=filteredData.filter(r=>r.has_breakfast==1).length;
+        document.getElementById('sumTransferService').textContent=filteredData.filter(r=>r.has_transfer==1).length;
+    }
+
+    // === დეტალები ===
+    function showDetail(id) {
+        const r = findById(id);
+        if(!r){alert('ჩანაწერი ვერ მოიძებნა (ID: '+id+')');return;}
+        document.getElementById('modalTitle').textContent=r.invoice_number+' — დეტალები';
+        let gH=r.guests.length>0?`<div class="detail-sub"><table><tr><th>სახელი</th><th>პირადი ნომერი</th></tr>${r.guests.map(g=>`<tr><td>${esc(g.name)}</td><td>${esc(g.idNumber)}</td></tr>`).join('')}</table></div>`:'—';
+        let rH=r.rooms.length>0?`<div class="detail-sub"><table><tr><th>ტიპი</th><th>ნომერი</th><th>ფასი</th></tr>${r.rooms.map(rm=>`<tr><td>${esc(rm.type)}</td><td>${esc(rm.number)}</td><td>${rm.price} ლ</td></tr>`).join('')}</table></div>`:'—';
+        document.getElementById('modalBody').innerHTML=`<table class="detail-table">
+            <tr><td>ინვოისი</td><td>${esc(r.invoice_number)}</td></tr>
+            <tr><td>დამკვეთი</td><td>${esc(r.client_name)}</td></tr>
+            <tr><td>ეროვნება</td><td>${nationNames[r.nationality]||r.nationality}</td></tr>
+            <tr><td>სტუმრები</td><td>${gH}</td></tr>
+            <tr><td>შესვლა</td><td>${fmtDate(r.check_in_date)}</td></tr>
+            <tr><td>გასვლა</td><td>${fmtDate(r.check_out_date)}</td></tr>
+            <tr><td>ღამეები</td><td>${r.nights_count}</td></tr>
+            <tr><td>ოთახები</td><td>${rH}</td></tr>
+            <tr><td>სულ თანხა</td><td style="font-weight:700;color:#217346;font-size:16px">${parseFloat(r.total_cost).toFixed(2)}ლ</td></tr>
+            <tr><td>გადახდა</td><td>${payNames[r.payment_type]||r.payment_type}</td></tr>
+            <tr><td>დოკუმენტი</td><td>${r.document_number||'—'}</td></tr>
+            <tr><td>სერვისები</td><td>${r.has_breakfast==1?'✅ საუზმე':'❌'} | ${r.has_transfer==1?'✅ ტრანსფერი':'❌'}</td></tr>
+        </table>
+        <div style="text-align:center;margin-top:15px;">
+            <button class="lang-btn" style="padding:10px 25px;font-size:13px;background:#1a5490;color:white;border-color:#1a5490;" onclick="closeModal();openPrintModal('${r.id}')">🖨️ ინვოისის ბეჭდვა</button>
+        </div>`;
+        document.getElementById('modalOverlay').classList.add('show');
+    }
+    function closeModal(){document.getElementById('modalOverlay').classList.remove('show');}
+
+    // === ინვოისის ბეჭდვა ===
+    function openPrintModal(id) {
+        currentPrintId = id;
+        const r = findById(id);
+        if(!r){alert('ჩანაწერი ვერ მოიძებნა');return;}
+
+        const checkIn = r.check_in_date;
+        const checkOut = r.check_out_date;
+        const inDate = new Date(checkIn);
+        const outDate = new Date(checkOut);
+        const totalNights = parseInt(r.nights_count);
+        const spansTwoMonths = inDate.getMonth() !== outDate.getMonth() || inDate.getFullYear() !== outDate.getFullYear();
+
+        const body = document.getElementById('invoiceSettingsBody');
+        body.innerHTML = `
+            <div style="background:#f8f9fa;border-radius:8px;padding:12px;margin-bottom:15px;">
+                <div style="font-size:12px;color:#666;margin-bottom:5px;">სრული ჯავშანი:</div>
+                <div style="font-weight:600;">${checkIn} → ${checkOut} (${totalNights} ღამე)</div>
+            </div>
+
+            ${spansTwoMonths ? `<div style="background:#fff3cd;border-radius:8px;padding:10px;margin-bottom:12px;font-size:12px;color:#856404;">
+                ⚠️ ეს ჯავშანი ორ თვეს მოიცავს. შეგიძლიათ თარიღები შეცვალოთ ნაწილობრივი ინვოისისთვის.
+            </div>` : ''}
+
+            <div style="display:flex;gap:12px;margin-bottom:15px;">
+                <div style="flex:1;">
+                    <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;color:#555;">დაწყება:</label>
+                    <input type="date" id="invFrom" value="${checkIn}" min="${checkIn}" max="${checkOut}"
+                        style="width:100%;padding:8px;border:2px solid #e0e0e0;border-radius:6px;font-size:13px;" onchange="updateInvPreview()">
+                </div>
+                <div style="flex:1;">
+                    <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;color:#555;">დასრულება:</label>
+                    <input type="date" id="invTo" value="${checkOut}" min="${checkIn}" max="${checkOut}"
+                        style="width:100%;padding:8px;border:2px solid #e0e0e0;border-radius:6px;font-size:13px;" onchange="updateInvPreview()">
+                </div>
+            </div>
+
+            <div id="invPreview" style="background:#e8f5e9;border-radius:8px;padding:10px;margin-bottom:15px;text-align:center;">
+                <span style="font-size:20px;font-weight:700;color:#2e7d32;">${totalNights}</span>
+                <span style="color:#555;font-size:13px;"> ღამე ინვოისში</span>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;color:#555;">ინვოისის ნომერი:</label>
+                <input type="text" id="invNumber" value="${r.invoice_number}"
+                    style="width:100%;padding:8px;border:2px solid #e0e0e0;border-radius:6px;font-size:13px;" placeholder="მაგ: INV-001/1">
+                <div style="font-size:10px;color:#999;margin-top:3px;">ნაწილობრივი ინვოისისთვის /1, /2 დაუმატეთ</div>
+            </div>
+
+            <p style="margin-bottom:12px;color:#555;font-size:13px;font-weight:600;">აირჩიეთ ენა:</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+                <button class="lang-btn" onclick="generateInvoiceWithRange('ka')">🇬🇪 ქართული</button>
+                <button class="lang-btn" onclick="generateInvoiceWithRange('en')">🇬🇧 English</button>
+            </div>
+        `;
+
+        document.getElementById('langModal').classList.add('show');
+    }
+    function closeLangModal(){document.getElementById('langModal').classList.remove('show');}
+
+    function updateInvPreview() {
+        const from = new Date(document.getElementById('invFrom').value);
+        const to = new Date(document.getElementById('invTo').value);
+        const nights = Math.ceil((to - from) / (1000*60*60*24));
+        const el = document.getElementById('invPreview');
+        if (nights <= 0) {
+            el.innerHTML = '<span style="color:#e74c3c;font-size:13px;">⚠️ არასწორი თარიღები</span>';
+        } else {
+            el.innerHTML = `<span style="font-size:20px;font-weight:700;color:#2e7d32;">${nights}</span><span style="color:#555;font-size:13px;"> ღამე ინვოისში</span>`;
+        }
+    }
+
+    function generateInvoiceWithRange(lang) {
+        const invoiceFrom = document.getElementById('invFrom').value;
+        const invoiceTo = document.getElementById('invTo').value;
+        const invoiceNumber = document.getElementById('invNumber').value;
+        const fromDate = new Date(invoiceFrom);
+        const toDate = new Date(invoiceTo);
+        const customNights = Math.ceil((toDate - fromDate) / (1000*60*60*24));
+        if (customNights <= 0) { alert('არასწორი თარიღები'); return; }
+
+        // Store overrides for generateInvoice
+        window._invoiceOverrides = {
+            check_in_date: invoiceFrom,
+            check_out_date: invoiceTo,
+            nights_count: customNights,
+            invoice_number: invoiceNumber
+        };
+        generateInvoice(lang);
+    }
+
+    function generateInvoice(lang) {
+        closeLangModal();
+        const r = findById(currentPrintId);
+        if(!r){alert('ჩანაწერი ვერ მოიძებნა');return;}
+
+        // Apply overrides if present
+        const ov = window._invoiceOverrides || {};
+        const useCheckIn = ov.check_in_date || r.check_in_date;
+        const useCheckOut = ov.check_out_date || r.check_out_date;
+        const useNights = ov.nights_count || parseInt(r.nights_count);
+        const useInvoiceNum = ov.invoice_number || r.invoice_number;
+        
+        // Recalculate total
+        let useTotalCost = 0;
+        r.rooms.forEach(room => { useTotalCost += parseFloat(room.price) * useNights; });
+        
+        window._invoiceOverrides = null; // clear
+
+        const t = lang==='ka' ? {
+            title:'HOTEL 725', invoice:'ინვოისი', date:'თარიღი',
+            companyName:'შპს NASCAR', idCode:'საიდენტიფიკაციო კოდი', idCodeVal:'445418423',
+            address:'მისამართი', addressText:'ქ. ბათუმი, ფრიდინ ხალვაშის გამზირი 45ა/42',
+            phone:'ტელეფონი', mobile:'მობ',
+            clientInfo:'შემკვეთის ინფორმაცია', clientName:'სახელი/დასახელება', idCode:'საიდ. კოდი', nationality:'ეროვნება',
+            guests:'სტუმრები', guestName:'სახელი გვარი', guestId:'პირადი ნომერი / პასპორტი',
+            bookingDetails:'დაჯავშნის დეტალები', checkIn:'დაბინავება', checkOut:'გასვლა',
+            nights:'ღამეების რაოდენობა', nightsText:'ღამე',
+            prices:'ფასები', service:'სერვისი', roomLabel:'ოთახი', roomNumber:'ნომერი',
+            pricePerNight:'ფასი/ღამე', quantity:'ღამეები', total:'სულ', totalAmount:'სულ გადასახდელი',
+            paymentType:'გადახდის ტიპი', docNumber:'დოკუმენტის ნომერი',
+            additionalServices:'დამატებითი სერვისები', breakfast:'საუზმე', transfer:'ტრანსფერი', yes:'კი', no:'არა',
+            bankDetails:'საბანკო რეკვიზიტები', recipientBank:'მიმღების ბანკი',
+            bankName:'სს "პროკრედიტ ბანკი"', bankCode:'ბანკის კოდი', accountNumber:'ა/ა',
+            thankYou:'გმადლობთ ჩვენი სასტუმროს არჩევისთვის!', noInfo:'ინფორმაცია არ არის',
+            cur:'ლ'
+        } : {
+            title:'HOTEL 725', invoice:'Invoice', date:'Date',
+            companyName:'LLC NASCAR', idCode:'ID Code', idCodeVal:'445418423',
+            address:'Address', addressText:'Batumi, Fridon Khalvashi Ave. 45a/42',
+            phone:'Phone', mobile:'Mobile',
+            clientInfo:'Client Information', clientName:'Name', idCode:'ID Code', nationality:'Nationality',
+            guests:'Guests', guestName:'Full Name', guestId:'ID / Passport Number',
+            bookingDetails:'Booking Details', checkIn:'Check-in', checkOut:'Check-out',
+            nights:'Number of Nights', nightsText:'night(s)',
+            prices:'Prices', service:'Service', roomLabel:'Room', roomNumber:'Room #',
+            pricePerNight:'Price/Night', quantity:'Nights', total:'Total', totalAmount:'Total Amount',
+            paymentType:'Payment Type', docNumber:'Document Number',
+            additionalServices:'Additional Services', breakfast:'Breakfast', transfer:'Transfer', yes:'Yes', no:'No',
+            bankDetails:'Bank Details', recipientBank:'Recipient Bank',
+            bankName:'JSC "ProCredit Bank"', bankCode:'Bank Code', accountNumber:'Account',
+            thankYou:'Thank you for choosing our hotel!', noInfo:'No information',
+            cur:'GEL'
+        };
+
+        const nName = lang==='ka'?(nationNames[r.nationality]||r.nationality):(nationNamesEn[r.nationality]||r.nationality);
+        const pName = lang==='ka'?(payNames[r.payment_type]||r.payment_type):(payNamesEn[r.payment_type]||r.payment_type);
+        function fmtDate(d) { return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); }
+        const invoiceDate = fmtDate(new Date(useCheckIn));
+        const checkInFmt = fmtDate(new Date(useCheckIn));
+        const checkOutFmt = fmtDate(new Date(useCheckOut));
+
+        let guestsHTML = r.guests.length>0 ?
+            `<table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-top:4px;">
+            <colgroup><col style="width:8%"><col style="width:52%"><col style="width:40%"></colgroup>
+            <tr><th style="background:#f8f9fa;padding:3px 8px;text-align:left;border:1px solid #e0e0e0;font-size:10px;">#</th>
+            <th style="background:#f8f9fa;padding:3px 8px;text-align:left;border:1px solid #e0e0e0;font-size:10px;">${t.guestName}</th>
+            <th style="background:#f8f9fa;padding:3px 8px;text-align:left;border:1px solid #e0e0e0;font-size:10px;">${t.guestId}</th></tr>
+            ${r.guests.map((g,i)=>`<tr><td style="padding:3px 8px;border:1px solid #e0e0e0;font-size:10px;">${i+1}</td><td style="padding:3px 8px;border:1px solid #e0e0e0;font-size:10px;">${esc(g.name)}</td><td style="padding:3px 8px;border:1px solid #e0e0e0;font-size:10px;">${esc(g.idNumber)}</td></tr>`).join('')}
+            </table>` : `<p style="color:#999;font-size:10px;">${t.noInfo}</p>`;
+
+        let roomsHTML = '';
+        r.rooms.forEach((room,i) => {
+            const tot = parseFloat(room.price)*useNights;
+            roomsHTML += `<tr><td style="padding:5px 8px;border-bottom:1px solid #e0e0e0;font-size:10px;">${t.roomLabel} #${i+1}: ${room.type} (${t.roomNumber} ${room.number})</td><td style="padding:5px 8px;border-bottom:1px solid #e0e0e0;font-size:10px;text-align:right;">${room.price} ${t.cur}</td><td style="padding:5px 8px;border-bottom:1px solid #e0e0e0;font-size:10px;text-align:right;">${useNights}</td><td style="padding:5px 8px;border-bottom:1px solid #e0e0e0;font-size:10px;text-align:right;"><strong>${tot} ${t.cur}</strong></td></tr>`;
+        });
+
+        const invoiceHTML = `
+        <div style="font-family:'Sylfaen','Arial',sans-serif;padding:15px 25px;max-width:800px;margin:0 auto;font-size:11px;color:#333;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:10px;border-bottom:3px solid #1a5490;">
+                <div style="flex:1;">
+                    <div style="font-size:26px;font-weight:bold;color:#1a5490;margin-bottom:4px;letter-spacing:2px;">${t.title}</div>
+                    <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px;">${t.companyName}</div>
+                    <div style="font-size:10px;line-height:1.5;color:#666;">${t.idCode}: ${t.idCodeVal}<br>${t.address}: ${t.addressText}<br>${t.phone}: 0422 228 725 | ${t.mobile}: +995 555 334 725</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:20px;font-weight:bold;color:#1a5490;margin-bottom:3px;">${t.invoice} #${useInvoiceNum}</div>
+                    <div style="font-size:11px;color:#666;">${t.date}: ${invoiceDate}</div>
+                </div>
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <div style="color:#1a5490;font-size:12px;font-weight:700;border-bottom:1px solid #e0e0e0;padding-bottom:4px;margin-bottom:6px;">${t.clientInfo}</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+                    <div style="background:#f8f9fa;padding:6px 8px;border-left:3px solid #1a5490;"><div style="font-size:9px;color:#666;font-weight:600;">${t.clientName}</div><div style="font-size:11px;font-weight:500;">${esc(r.client_name)}</div></div>
+                    <div style="background:#f8f9fa;padding:6px 8px;border-left:3px solid #1a5490;"><div style="font-size:9px;color:#666;font-weight:600;">${t.idCode}</div><div style="font-size:11px;font-weight:500;">${esc(r.client_id_code||'—')}</div></div>
+                    <div style="background:#f8f9fa;padding:6px 8px;border-left:3px solid #1a5490;"><div style="font-size:9px;color:#666;font-weight:600;">${t.nationality}</div><div style="font-size:11px;font-weight:500;">${nName}</div></div>
+                </div>
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <div style="color:#1a5490;font-size:12px;font-weight:700;border-bottom:1px solid #e0e0e0;padding-bottom:4px;margin-bottom:6px;">${t.guests}</div>
+                ${guestsHTML}
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <div style="color:#1a5490;font-size:12px;font-weight:700;border-bottom:1px solid #e0e0e0;padding-bottom:4px;margin-bottom:6px;">${t.bookingDetails}</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+                    <div style="background:#f8f9fa;padding:6px 8px;border-left:3px solid #1a5490;"><div style="font-size:9px;color:#666;font-weight:600;">${t.checkIn}</div><div style="font-size:11px;font-weight:500;">${checkInFmt}</div></div>
+                    <div style="background:#f8f9fa;padding:6px 8px;border-left:3px solid #1a5490;"><div style="font-size:9px;color:#666;font-weight:600;">${t.checkOut}</div><div style="font-size:11px;font-weight:500;">${checkOutFmt}</div></div>
+                    <div style="background:#f8f9fa;padding:6px 8px;border-left:3px solid #1a5490;"><div style="font-size:9px;color:#666;font-weight:600;">${t.nights}</div><div style="font-size:11px;font-weight:500;">${useNights} ${t.nightsText}</div></div>
+                </div>
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <div style="color:#1a5490;font-size:12px;font-weight:700;border-bottom:1px solid #e0e0e0;padding-bottom:4px;margin-bottom:6px;">${t.prices}</div>
+                <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+                    <colgroup><col style="width:50%"><col style="width:16%"><col style="width:14%"><col style="width:20%"></colgroup>
+                    <thead><tr><th style="background:#f8f9fa;padding:6px 8px;text-align:left;font-weight:700;color:#1a5490;font-size:10px;border-bottom:1px solid #e0e0e0;">${t.service}</th><th style="background:#f8f9fa;padding:6px 8px;text-align:right;font-weight:700;color:#1a5490;font-size:10px;border-bottom:1px solid #e0e0e0;">${t.pricePerNight}</th><th style="background:#f8f9fa;padding:6px 8px;text-align:right;font-weight:700;color:#1a5490;font-size:10px;border-bottom:1px solid #e0e0e0;">${t.quantity}</th><th style="background:#f8f9fa;padding:6px 8px;text-align:right;font-weight:700;color:#1a5490;font-size:10px;border-bottom:1px solid #e0e0e0;">${t.total}</th></tr></thead>
+                    <tbody>${roomsHTML}
+                    <tr style="background:#1a5490;color:white;font-size:13px;font-weight:bold;"><td colspan="3" style="text-align:right;padding:8px 15px 8px 8px;border:none;">${t.totalAmount}:</td><td style="text-align:right;padding:8px;border:none;"><strong>${useTotalCost.toFixed(2)} ${t.cur}</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <div style="color:#1a5490;font-size:12px;font-weight:700;border-bottom:1px solid #e0e0e0;padding-bottom:4px;margin-bottom:6px;">${t.additionalServices}</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;">
+                    <div style="background:#f8f9fa;padding:5px 8px;font-size:10px;display:flex;justify-content:space-between;"><span>${t.breakfast}</span><strong>${r.has_breakfast==1?'✅':'❌'}</strong></div>
+                    <div style="background:#f8f9fa;padding:5px 8px;font-size:10px;display:flex;justify-content:space-between;"><span>${t.transfer}</span><strong>${r.has_transfer==1?'✅':'❌'}</strong></div>
+                    <div style="background:#f8f9fa;padding:5px 8px;border-left:3px solid #1a5490;"><div style="font-size:8px;color:#666;font-weight:600;">${t.paymentType}</div><div style="font-size:10px;font-weight:500;">${pName}</div></div>
+                    <div style="background:#f8f9fa;padding:5px 8px;border-left:3px solid #1a5490;"><div style="font-size:8px;color:#666;font-weight:600;">${t.docNumber}</div><div style="font-size:10px;font-weight:500;">${r.document_number||'—'}</div></div>
+                </div>
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <div style="color:#1a5490;font-size:12px;font-weight:700;border-bottom:1px solid #e0e0e0;padding-bottom:4px;margin-bottom:6px;">${t.bankDetails}</div>
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:15px;">
+                    <div style="flex:1;background:#f0f4f8;padding:8px 12px;border:1px solid #d0dae6;font-size:10px;">
+                        <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="font-weight:600;color:#555;">${t.recipientBank}:</span><span style="font-weight:500;">${t.bankName}</span></div>
+                        <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="font-weight:600;color:#555;">${t.bankCode}:</span><span style="font-weight:500;">MIBGGE22</span></div>
+                        <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="font-weight:600;color:#555;">${t.accountNumber}:</span><span style="font-weight:500;">GE37PC0033600100055682</span></div>
+                    </div>
+                    <div style="text-align:center;flex:0 0 160px;">
+                        <img src="signature.png" style="max-width:150px;max-height:70px;margin-bottom:3px;" alt="">
+                        <div style="border-top:1px solid #999;padding-top:3px;font-size:8px;color:#555;">${lang==='ka'?'ხელმოწერა / ბეჭედი':'Signature / Stamp'}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align:center;margin-top:15px;padding-top:10px;border-top:2px solid #e0e0e0;color:#666;">
+                <div style="font-size:12px;font-weight:600;color:#1a5490;margin-bottom:5px;">${t.thankYou}</div>
+                <div style="font-size:9px;">${t.title} • ${t.addressText}<br>${t.phone}: 0422 228 725 • ${t.mobile}: +995 555 334 725 • Email: info@hotel725.ge • www.hotel725.ge</div>
+            </div>
+        </div>`;
+
+        // Open in new window - works from iframe too
+        const fullHTML = `<!DOCTYPE html>
+
+
+<html lang="${lang}">
+<head>
+<meta charset="utf-8">
+<title>${t.invoice} #${useInvoiceNum}</title>
+<style>
+@page { size: A4; margin: 10mm 12mm; }
+body { margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+@media print {
+    body { background: white; }
+    a[href]:after { content: none !important; }
+}
+</style>
+</head>
+<body>${invoiceHTML}</body>
+</html>`;
+
+
+        // Try top.open first (for iframe), fallback to window.open
+        let printWin;
+        try {
+            printWin = (window.top || window).open('', '_blank');
+        } catch(e) {
+            printWin = window.open('', '_blank');
+        }
+
+        if (printWin) {
+            printWin.document.write(fullHTML);
+            printWin.document.close();
+            setTimeout(() => { printWin.print(); }, 400);
+        } else {
+            // Fallback: show in overlay
+            document.getElementById('invoiceContent').innerHTML = invoiceHTML;
+            document.getElementById('invoiceOverlay').classList.add('show');
+        }
+    }
+
+    function closeInvoice() {
+        document.getElementById('invoiceOverlay').classList.remove('show');
+        document.getElementById('invoiceContent').innerHTML = '';
+    }
+
+    // === წაშლა ===
+    async function deleteRecord(id) {
+        const r = findById(id);
+        if(!confirm(`წავშალოთ ${r?r.invoice_number:''} ?`)) return;
+        try {
+            const res = await fetch(API_URL+'?action=delete&id='+id,{method:'POST', credentials:'include'});
+            const json = await res.json();
+            if(json.success){
+                allData=allData.filter(x=>String(x.id)!==String(id));
+                filteredData=filteredData.filter(x=>String(x.id)!==String(id));
+                renderTable();updateStats();
+                document.getElementById('statusLeft').textContent='ჩანაწერი წაიშალა';
+            } else { alert('შეცდომა: '+json.error); }
+        } catch(e){ alert('სერვერთან კავშირის შეცდომა'); }
+    }
+
+    // === CSV ===
+    function exportExcel() {
+        if(filteredData.length===0){alert('ცარიელია');return;}
+
+        const totalAmount = filteredData.reduce((s,r)=>s+parseFloat(r.total_cost),0);
+        const totalNights = filteredData.reduce((s,r)=>s+parseInt(r.nights_count),0);
+        const totalRooms = filteredData.reduce((s,r)=>s+parseInt(r.room_count),0);
+        const dates = filteredData.map(r=>r.check_in_date).sort();
+        const period = fmtDate(dates[0]) + ' — ' + fmtDate(dates[dates.length-1]);
+        const today = new Date().toLocaleDateString('ka-GE');
+
+        // Build styled HTML table for Excel
+        let html = `
+
+
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8">
+<style>
+    td, th { font-family: Sylfaen, Arial, sans-serif; }
+    .title { font-size: 18pt; font-weight: bold; color: #1a5490; text-align: center; }
+    .subtitle { font-size: 10pt; color: #666; text-align: center; }
+    .hdr { background: #1a5490; color: #fff; font-weight: bold; font-size: 9pt; text-align: center; border: 1px solid #0d3a6e; padding: 6px 4px; }
+    .even { background: #f0f4f8; }
+    .odd { background: #ffffff; }
+    .cell { font-size: 9pt; border: 1px solid #d0d0d0; padding: 4px 6px; vertical-align: middle; }
+    .num { text-align: right; }
+    .ctr { text-align: center; }
+    .cur { text-align: right; font-weight: 600; mso-number-format:"#\\,##0\\.00"; }
+    .sum-row { background: #1a5490; color: #fff; font-weight: bold; font-size: 10pt; }
+    .sum-cell { border: 1px solid #0d3a6e; padding: 6px; }
+    .yes { color: #27ae60; font-weight: bold; text-align: center; }
+    .no { color: #ccc; text-align: center; }
+    .inv { color: #1a5490; font-weight: 700; }
+    .stats-row { background: #e8f5e9; font-size: 9pt; }
+    .stats-cell { padding: 4px 6px; border: 1px solid #c8e6c9; }
+</style>
+</head><body>
+<table>
+    <tr><td colspan="16" class="title">HOTEL 725 — რეალიზაციების ანგარიში</td></tr>
+    <tr><td colspan="16" class="subtitle">პერიოდი: ${period}</td></tr>
+    <tr><td colspan="16" class="subtitle">ექსპორტი: ${today} | ჩანაწერები: ${filteredData.length} | ჯამი: ${totalAmount.toFixed(2)} ლ</td></tr>
+    <tr><td colspan="16"></td></tr>
+    <tr>
+        <th class="hdr">№</th>
+        <th class="hdr">ინვოისი</th>
+        <th class="hdr">დამკვეთი</th>
+        <th class="hdr">საიდ. კოდი</th>
+        <th class="hdr">ეროვნება</th>
+        <th class="hdr">შესვლა</th>
+        <th class="hdr">გასვლა</th>
+        <th class="hdr">ღამე</th>
+        <th class="hdr">ოთახის ტიპი</th>
+        <th class="hdr">ოთახის №</th>
+        <th class="hdr">ოთახ.</th>
+        <th class="hdr">ფასი/ღამე</th>
+        <th class="hdr">სულ თანხა</th>
+        <th class="hdr">გადახდა</th>
+        <th class="hdr">🍳</th>
+        <th class="hdr">🚗</th>
+    </tr>`;
+
+
+        filteredData.forEach((r, i) => {
+            const rc = i%2===0 ? 'even' : 'odd';
+            const nat = nationNames[r.nationality] || r.nationality;
+            const pay = payNames[r.payment_type] || r.payment_type;
+            const avgPrice = r.rooms.length>0 ? (r.rooms.reduce((s,rm)=>s+parseFloat(rm.price),0)/r.rooms.length).toFixed(0) : 0;
+            const bf = r.has_breakfast==1;
+            const tf = r.has_transfer==1;
+            html += `
+<tr class="${rc}">
+    <td class="cell ctr">${i+1}</td>
+    <td class="cell inv">${r.invoice_number}</td>
+    <td class="cell">${r.client_name}</td>
+    <td class="cell">${r.client_id_code||''}</td>
+    <td class="cell ctr">${nat}</td>
+    <td class="cell ctr">${fmtDate(r.check_in_date)}</td>
+    <td class="cell ctr">${fmtDate(r.check_out_date)}</td>
+    <td class="cell num">${r.nights_count}</td>
+    <td class="cell">${r.rooms.map(rm=>rm.type).join(', ')}</td>
+    <td class="cell ctr">${r.rooms.map(rm=>rm.number).join(', ')}</td>
+    <td class="cell num">${r.room_count}</td>
+    <td class="cell cur">${avgPrice}</td>
+    <td class="cell cur">${parseFloat(r.total_cost).toFixed(2)}</td>
+    <td class="cell ctr">${pay}</td>
+    <td class="${bf?'cell yes':'cell no'}">${bf?'✔':'—'}</td>
+    <td class="${tf?'cell yes':'cell no'}">${tf?'✔':'—'}</td>
+</tr>`;
+        });
+
+        // Summary row
+        html += `
+<tr><td colspan="16"></td></tr>
+<tr class="sum-row">
+    <td class="sum-cell" colspan="2"></td>
+    <td class="sum-cell" style="text-align:right;">სულ ჯამი:</td>
+    <td class="sum-cell" colspan="4"></td>
+    <td class="sum-cell num">${totalNights}</td>
+    <td class="sum-cell" colspan="2"></td>
+    <td class="sum-cell num">${totalRooms}</td>
+    <td class="sum-cell"></td>
+    <td class="sum-cell cur" style="color:#fff;font-size:11pt;">${totalAmount.toFixed(2)}</td>
+    <td class="sum-cell" colspan="3"></td>
+</tr>`;
+
+        // Payment breakdown
+        const payBreakdown = {};
+        filteredData.forEach(r => {
+            const pn = payNames[r.payment_type]||r.payment_type;
+            payBreakdown[pn] = (payBreakdown[pn]||0) + parseFloat(r.total_cost);
+        });
+        html += `
+<tr><td colspan="16"></td></tr>
+<tr><td colspan="16" style="font-weight:bold;font-size:10pt;color:#1a5490;padding:6px;">გადახდის მეთოდები:</td></tr>`;
+        Object.entries(payBreakdown).forEach(([name, amount]) => {
+            html += `
+<tr class="stats-row">
+    <td class="stats-cell"></td>
+    <td class="stats-cell" colspan="2" style="font-weight:600;">${name}</td>
+    <td class="stats-cell" colspan="2" style="text-align:right;font-weight:700;">${amount.toFixed(2)} ლ</td>
+    <td class="stats-cell" colspan="11"></td>
+</tr>`;
+        });
+
+        // Nationality breakdown
+        const natBreakdown = {};
+        filteredData.forEach(r => {
+            const nn = nationNames[r.nationality]||r.nationality;
+            natBreakdown[nn] = (natBreakdown[nn]||0) + 1;
+        });
+        html += `
+<tr><td colspan="16"></td></tr>
+<tr><td colspan="16" style="font-weight:bold;font-size:10pt;color:#1a5490;padding:6px;">ეროვნებები:</td></tr>`;
+        Object.entries(natBreakdown).sort((a,b)=>b[1]-a[1]).forEach(([name, count]) => {
+            html += `
+<tr class="stats-row">
+    <td class="stats-cell"></td>
+    <td class="stats-cell" colspan="2" style="font-weight:600;">${name}</td>
+    <td class="stats-cell" style="text-align:right;font-weight:700;">${count}</td>
+    <td class="stats-cell" colspan="12"></td>
+</tr>`;
+        });
+
+        html += `
+
+
+</table></body></html>`;
+
+
+        // Download as .xls (Excel reads HTML tables perfectly)
+        const blob = new Blob(['\uFEFF' + html], {type: 'application/vnd.ms-excel;charset=utf-8'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `Hotel725_რეალიზაციები_${new Date().toISOString().split('T')[0]}.xls`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
+    function fmtDate(d){if(!d)return'—';const p=d.split('-');return p[2]+'.'+p[1]+'.'+p[0];}
+    function fmtDateTime(dt){if(!dt)return'—';const d=new Date(dt);return d.toLocaleDateString('ka-GE')+' '+d.toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});}
+    function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeLangModal();closeInvoice();}});
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOTEL 725 - რეალიზაციის აღრიცხვა</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+    body {
+        font-family: 'Sylfaen', Arial, sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+        color: #333;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        border: 1px solid #ccc;
+    }
+
+    /* Header */
+    .header {
+        background: #2c3e50;
+        color: white;
+        padding: 20px 30px;
+        border-bottom: 3px solid #34495e;
+    }
+
+    .header h1 {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+
+    .header p {
+        font-size: 13px;
+        opacity: 0.9;
+    }
+
+    /* Navigation Tabs */
+    /* Autocomplete Dropdown */
+    .ac-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 2px solid #1a5490;
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 100;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .ac-dropdown.show { display: block; }
+    .ac-item {
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 13px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .ac-item:hover, .ac-item.active { background: #e8f0fe; }
+    .ac-item .ac-name { font-weight: 600; color: #2c3e50; }
+    .ac-item .ac-detail { font-size: 11px; color: #888; margin-top: 2px; }
+
+    /* Content */
+    #entry {
+        padding: 30px;
+    }
+
+    /* Form Section */
+    .section {
+        margin-bottom: 30px;
+        border: 1px solid #ddd;
+        background: #fafafa;
+    }
+
+    .section-header {
+        background: #34495e;
+        color: white;
+        padding: 12px 20px;
+        font-size: 15px;
+        font-weight: 600;
+        border-bottom: 2px solid #2c3e50;
+    }
+
+    .section-body {
+        padding: 20px;
+        background: white;
+    }
+
+    /* Form Table */
+    .form-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .form-table td {
+        padding: 10px;
+        vertical-align: top;
+    }
+
+    .form-table label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #2c3e50;
+        font-size: 13px;
+    }
+
+    .form-table label.required::after {
+        content: ' *';
+        color: #e74c3c;
+    }
+
+    .form-table input[type="text"],
+    .form-table input[type="date"],
+    .form-table input[type="number"],
+    .form-table select {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #bdc3c7;
+        font-size: 14px;
+        font-family: inherit;
+        background: white;
+    }
+
+    .form-table input:focus,
+    .form-table select:focus {
+        outline: none;
+        border-color: #3498db;
+    }
+
+    .form-table input:read-only,
+    .form-table input:disabled {
+        background: #ecf0f1;
+        color: #7f8c8d;
+    }
+
+    .form-table input.calculated {
+        background: #e8f5e9;
+        font-weight: 600;
+        color: #27ae60;
+    }
+
+    .form-table input.error {
+        border-color: #e74c3c;
+        background: #fadbd8;
+    }
+
+    .error-text {
+        color: #e74c3c;
+        font-size: 11px;
+        margin-top: 3px;
+        display: none;
+    }
+
+    .error-text.show {
+        display: block;
+    }
+
+    /* Checkbox */
+    .checkbox-group {
+        padding: 15px 10px;
+    }
+
+    .checkbox-item {
+        display: inline-block;
+        margin-right: 30px;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        margin-right: 5px;
+    }
+
+    .checkbox-item label {
+        font-weight: normal;
+        cursor: pointer;
+    }
+
+    /* Buttons */
+    .button-bar {
+        text-align: center;
+        padding: 20px;
+        background: #ecf0f1;
+        border-top: 1px solid #bdc3c7;
+    }
+
+    .btn {
+        padding: 10px 30px;
+        border: 1px solid #2c3e50;
+        background: #34495e;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        margin: 0 5px;
+    }
+
+    .btn:hover {
+        background: #2c3e50;
+    }
+
+    .btn-primary {
+        background: #3498db;
+        border-color: #2980b9;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+    }
+
+    .btn-success {
+        background: #27ae60;
+        border-color: #229954;
+    }
+
+    .btn-success:hover {
+        background: #229954;
+    }
+
+    .btn-danger {
+        background: #e74c3c;
+        border-color: #c0392b;
+    }
+
+    .btn-danger:hover {
+        background: #c0392b;
+    }
+
+    /* Data Table */
+    .data-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #bdc3c7;
+    }
+
+    .data-table thead {
+        background: #34495e;
+        color: white;
+    }
+
+    .data-table th {
+        padding: 12px 10px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        border: 1px solid #2c3e50;
+    }
+
+    .data-table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        font-size: 13px;
+    }
+
+    .data-table tbody tr:nth-child(even) {
+        background: #f9f9f9;
+    }
+
+    .data-table tbody tr:hover {
+        background: #e8f5e9;
+    }
+
+    /* Statistics Summary */
+    .summary-box {
+        border: 2px solid #34495e;
+        margin-bottom: 20px;
+    }
+
+    .summary-header {
+        background: #34495e;
+        color: white;
+        padding: 10px 15px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .summary-body {
+        padding: 15px;
+        background: white;
+    }
+
+    .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .summary-table td {
+        padding: 8px;
+        border-bottom: 1px solid #ecf0f1;
+    }
+
+    .summary-table td:first-child {
+        font-weight: 600;
+        color: #34495e;
+        width: 200px;
+    }
+
+    .summary-table td:last-child {
+        text-align: right;
+        font-size: 18px;
+        font-weight: 700;
+        color: #27ae60;
+    }
+
+    /* Filter Panel */
+    .filter-panel {
+        background: #ecf0f1;
+        padding: 15px 20px;
+        border: 1px solid #bdc3c7;
+        margin-bottom: 20px;
+    }
+
+    .filter-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    .filter-field label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #2c3e50;
+    }
+
+    .filter-field input,
+    .filter-field select {
+        width: 100%;
+        padding: 7px 10px;
+        border: 1px solid #bdc3c7;
+        font-size: 13px;
+    }
+
+    /* Alert Messages */
+    .alert {
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        display: none;
+    }
+
+    .alert.show {
+        display: block;
+    }
+
+    .alert-success {
+        background: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+
+    .alert-error {
+        background: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+
+    /* No Data */
+    .no-data {
+        text-align: center;
+        padding: 50px;
+        color: #7f8c8d;
+        font-size: 16px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-table {
+            display: block;
+        }
+
+        .form-table tbody,
+        .form-table tr,
+        .form-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .form-table td {
+            padding: 10px 0;
+        }
+    }
+</style>
+
+
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏨 HOTEL 725</h1>
+            <p>სასტუმროს რეალიზაციის აღრიცხვის სისტემა</p>
+            <div id="dbStatus" style="margin-top:8px; font-size:12px;">
+                <span id="dbDot" style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#ffc107; margin-right:5px;"></span>
+                <span id="dbText">ბაზის შემოწმება...</span>
+                <span id="dbCount" style="margin-left:15px; color:#fff; opacity:0.8;"></span>
+            </div>
+        </div>
+
+
+    <!-- Form only, no tabs -->
+
+    <!-- Alert -->
+    <div class="alert alert-success" id="successAlert" style="margin: 20px; margin-bottom: 0;">
+        <strong>✓</strong> <span id="alertMessage"></span>
+    </div>
+
+    <!-- Tab 1: Entry Form -->
+    <div id="entry">
+        <form id="realizationForm">
+            <!-- Guest Information -->
+            <div class="section">
+                <div class="section-header">ძირითადი ინფორმაცია</div>
+                <div class="section-body">
+                    <table class="form-table">
+                        <tr>
+                            <td style="width: 25%;">
+                                <label class="required">ინვოისის ნომერი</label>
+                                <input type="text" id="invoiceNumber" name="invoiceNumber" placeholder="INV-0001" readonly>
+                                <span class="error-text" id="invoiceNumberError">აუცილებელი ველი</span>
+                            </td>
+                            <td style="width: 25%; position: relative;">
+                                <label class="required">დამკვეთი (მთავარი სტუმარი)</label>
+                                <input type="text" id="clientName" name="clientName" placeholder="სახელი და გვარი" autocomplete="off">
+                                <div class="ac-dropdown" id="acDropdownName"></div>
+                                <span class="error-text" id="clientNameError">აუცილებელი ველი</span>
+                            </td>
+                            <td style="width: 25%; position: relative;">
+                                <label>საიდენტიფიკაციო კოდი</label>
+                                <input type="text" id="clientIdCode" name="clientIdCode" placeholder="მაგ: 445418423" autocomplete="off">
+                                <div class="ac-dropdown" id="acDropdownCode"></div>
+                            </td>
+                            <td style="width: 25%;">
+                                <label class="required">ეროვნება</label>
+                                <select id="nationality" name="nationality">
+                                    <option value="">აირჩიეთ ქვეყანა</option>
+                                    <option value="georgia">საქართველო</option>
+                                    <option value="russia">რუსეთი</option>
+                                    <option value="turkey">თურქეთი</option>
+                                    <option value="armenia">სომხეთი</option>
+                                    <option value="azerbaijan">აზერბაიჯანი</option>
+                                    <option value="ukraine">უკრაინა</option>
+                                    <option value="usa">აშშ</option>
+                                    <option value="uk">დიდი ბრიტანეთი</option>
+                                    <option value="germany">გერმანია</option>
+                                    <option value="france">საფრანგეთი</option>
+                                    <option value="israel">ისრაელი</option>
+                                    <option value="china">ჩინეთი</option>
+                                    <option value="india">ინდოეთი</option>
+                                    <option value="other">სხვა</option>
+                                </select>
+                                <span class="error-text" id="nationalityError">აუცილებელი ველი</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Guest Details -->
+            <div class="section">
+                <div class="section-header">სტუმრების დეტალები</div>
+                <div class="section-body">
+                    <div id="guestsContainer">
+                        <!-- Main guest - no delete button -->
+                        <table class="form-table" id="mainGuestRow">
+                            <tr>
+                                <td style="width: 40%;">
+                                    <label class="required">სახელი გვარი (მთავარი სტუმარი)</label>
+                                    <input type="text" class="guest-name" placeholder="სახელი გვარი">
+                                </td>
+                                <td style="width: 40%;">
+                                    <label class="required">პირადი ნომერი / პასპორტი</label>
+                                    <input type="text" class="guest-id" placeholder="01234567890">
+                                </td>
+                                <td style="width: 20%;">
+                                    <label>&nbsp;</label>
+                                    <button type="button" class="btn" style="padding: 8px 15px; width: 100%;" onclick="addGuest()">➕ სტუმარი</button>
+                                </td>
+                            </tr>
+                        </table>
+                        <!-- Additional guests will be added here -->
+                        <div id="additionalGuests"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dates -->
+            <div class="section">
+                <div class="section-header">თარიღები</div>
+                <div class="section-body">
+                    <table class="form-table">
+                        <tr>
+                            <td style="width: 33%;">
+                                <label class="required">შესვლის თარიღი</label>
+                                <input type="date" id="checkInDate" name="checkInDate">
+                                <span class="error-text" id="checkInDateError">აუცილებელი ველი</span>
+                            </td>
+                            <td style="width: 33%;">
+                                <label class="required">გასვლის თარიღი</label>
+                                <input type="date" id="checkOutDate" name="checkOutDate">
+                                <span class="error-text" id="checkOutDateError">აუცილებელი ველი</span>
+                            </td>
+                            <td style="width: 34%;">
+                                <label>დღეთა რაოდენობა</label>
+                                <input type="number" id="nightsCount" name="nightsCount" class="calculated" readonly>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Room & Price -->
+            <div class="section">
+                <div class="section-header">ოთახები</div>
+                <div class="section-body">
+                    <div id="roomsContainer">
+                        <!-- Room entry -->
+                        <table class="form-table" id="mainRoomRow">
+                            <tr>
+                                <td style="width: 25%;">
+                                    <label class="required">ნომრის ტიპი</label>
+                                    <select class="room-type" disabled>
+                                        <option value="">— ჯერ ნომერი აირჩიეთ —</option>
+                                    </select>
+                                </td>
+                                <td style="width: 25%;">
+                                    <label class="required">ნომერი</label>
+                                    <select class="room-number" onchange="onRoomSelect(this)">
+                                        <option value="">აირჩიეთ ნომერი</option>
+                                    </select>
+                                </td>
+                                <td style="width: 25%;">
+                                    <label class="required">ფასი (ლ)</label>
+                                    <input type="number" class="room-price" min="0" step="0.01" placeholder="150.00">
+                                </td>
+                                <td style="width: 25%;">
+                                    <label>&nbsp;</label>
+                                    <button type="button" class="btn" style="padding: 8px 15px; width: 100%;" onclick="addRoom()">➕ ოთახი</button>
+                                </td>
+                            </tr>
+                        </table>
+                        <!-- Additional rooms will be added here -->
+                        <div id="additionalRooms"></div>
+                    </div>
+                    
+                    <!-- Summary -->
+                    <table class="form-table" style="margin-top: 15px; background: #f0f9ff; border: 2px solid #bae6fd;">
+                        <tr>
+                            <td style="width: 50%;">
+                                <label>სულ ოთახების რაოდენობა</label>
+                                <input type="number" id="roomCount" class="calculated" readonly>
+                            </td>
+                            <td style="width: 50%;">
+                                <label>ღირებულება მთლიანი (ლ)</label>
+                                <input type="number" id="totalCost" class="calculated" readonly>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Services -->
+            <div class="section">
+                <div class="section-header">დამატებითი სერვისები</div>
+                <div class="section-body">
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hasBreakfast" name="hasBreakfast">
+                            <label for="hasBreakfast">საუზმე</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hasTransfer" name="hasTransfer">
+                            <label for="hasTransfer">ტრანსფერი</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment -->
+            <div class="section">
+                <div class="section-header">გადახდის ინფორმაცია</div>
+                <div class="section-body">
+                    <table class="form-table">
+                        <tr>
+                            <td style="width: 50%;">
+                                <label class="required">გადახდის ტიპი</label>
+                                <select id="paymentType" name="paymentType">
+                                    <option value="">აირჩიეთ</option>
+                                    <option value="cash">ნაღდი</option>
+                                    <option value="card">ბარათი</option>
+                                    <option value="transfer">ტრანსფერი</option>
+                                    <option value="online">ონლაინ გადახდა</option>
+                                </select>
+                                <span class="error-text" id="paymentTypeError">აუცილებელი ველი</span>
+                            </td>
+                            <td style="width: 50%;">
+                                <label>დოკუმენტის ნომერი</label>
+                                <input type="text" id="documentNumber" name="documentNumber" placeholder="არასავალდებულო">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="button-bar">
+                <button type="submit" class="btn btn-success">💾 შენახვა</button>
+                <button type="button" class="btn" onclick="document.getElementById('realizationForm').reset()">🔄 გასუფთავება</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tab 2: Records List -->
+</div>
+
+<script>
+    const API_URL = 'save_realization.php';
+
+    let realizations = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeForm();
+        generateInvoiceNumber();
+        loadRecordCount();
+        loadAvailableRooms();
+        initAutocomplete();
+    });
+
+    async function generateInvoiceNumber() {
+        try {
+            const res = await fetch(API_URL + '?action=next_invoice', { credentials: 'include' });
+            const json = await res.json();
+            if (json.success) {
+                document.getElementById('invoiceNumber').value = json.invoice_number;
+            } else {
+                document.getElementById('invoiceNumber').value = 'INV-0001';
+            }
+        } catch(e) {
+            document.getElementById('invoiceNumber').value = 'INV-0001';
+        }
+        document.getElementById('invoiceNumber').readOnly = true;
+    }
+
+    async function loadRecordCount() {
+        const dot = document.getElementById('dbDot');
+        const text = document.getElementById('dbText');
+        const count = document.getElementById('dbCount');
+        try {
+            const res = await fetch(API_URL + '?action=count', { credentials: 'include' });
+            const json = await res.json();
+            if (json.success) {
+                dot.style.background = '#28a745';
+                text.textContent = 'ბაზა დაკავშირებულია ✓';
+                count.textContent = '📋 ჩანაწერები: ' + json.count;
+            } else {
+                dot.style.background = '#e74c3c';
+                text.textContent = '❌ ' + (json.error || 'შეცდომა');
+            }
+        } catch(e) {
+            dot.style.background = '#e74c3c';
+            text.textContent = '❌ ბაზასთან კავშირი ვერ მოხერხდა';
+            console.error('DB check failed:', e);
+        }
+    }
+
+    // === ოთახების ჩატვირთვა ბაზიდან ===
+    let availableRooms = [];
+
+    async function loadAvailableRooms() {
+        try {
+            const res = await fetch('get_realizations.php?action=rooms&active=1', { credentials: 'include' });
+            const json = await res.json();
+            if (json.success) {
+                availableRooms = json.data;
+                populateRoomSelects();
+            }
+        } catch(e) {
+            console.error('Rooms load error:', e);
+        }
+    }
+
+    function populateRoomSelects(container) {
+        const target = container || document;
+        const selects = target.querySelectorAll('.room-number');
+        selects.forEach(sel => {
+            const currentVal = sel.value;
+            sel.innerHTML = '<option value="">აირჩიეთ ნომერი</option>';
+            availableRooms.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r.room_number;
+                opt.textContent = r.room_number + ' — ' + r.room_type;
+                opt.dataset.type = r.room_type;
+                opt.dataset.price = r.default_price;
+                sel.appendChild(opt);
+            });
+            if (currentVal) sel.value = currentVal;
+        });
+    }
+
+    function onRoomSelect(sel) {
+        const row = sel.closest('tr');
+        const typeSelect = row.querySelector('.room-type');
+        const priceInput = row.querySelector('.room-price');
+        const selected = sel.options[sel.selectedIndex];
+
+        if (selected && selected.dataset.type) {
+            typeSelect.innerHTML = '<option value="' + selected.dataset.type + '" selected>' + selected.dataset.type + '</option>';
+            if (!priceInput.value || priceInput.value == 0) {
+                priceInput.value = parseFloat(selected.dataset.price) || '';
+            }
+        } else {
+            typeSelect.innerHTML = '<option value="">— ჯერ ნომერი აირჩიეთ —</option>';
+        }
+        calculateTotal();
+    }
+
+    // === კლიენტის Autocomplete ===
+    let acTimeout = null;
+
+    function initAutocomplete() {
+        const nameInput = document.getElementById('clientName');
+        const codeInput = document.getElementById('clientIdCode');
+        const dropName = document.getElementById('acDropdownName');
+        const dropCode = document.getElementById('acDropdownCode');
+
+        nameInput.addEventListener('input', function() {
+            clearTimeout(acTimeout);
+            const q = this.value.trim();
+            if (q.length < 2) { dropName.classList.remove('show'); return; }
+            acTimeout = setTimeout(() => searchClients(q, dropName, 'name'), 300);
+        });
+
+        codeInput.addEventListener('input', function() {
+            clearTimeout(acTimeout);
+            const q = this.value.trim();
+            if (q.length < 2) { dropCode.classList.remove('show'); return; }
+            acTimeout = setTimeout(() => searchClients(q, dropCode, 'code'), 300);
+        });
+
+        // dropdown-ის დახურვა
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#clientName') && !e.target.closest('#acDropdownName')) {
+                dropName.classList.remove('show');
+            }
+            if (!e.target.closest('#clientIdCode') && !e.target.closest('#acDropdownCode')) {
+                dropCode.classList.remove('show');
+            }
+        });
+    }
+
+    async function searchClients(query, dropdown, field) {
+        try {
+            const res = await fetch('get_realizations.php?action=clients_search&q=' + encodeURIComponent(query), { credentials: 'include' });
+            const json = await res.json();
+
+            if (json.success && json.data.length > 0) {
+                dropdown.innerHTML = json.data.map(c => {
+                    const typeLabel = c.client_type === 'company' ? '🏢' : '👤';
+                    const detail = [c.id_code, c.phone, c.email].filter(x => x).join(' • ');
+                    return `<div class="ac-item" onclick="selectClient(${JSON.stringify(c).replace(/"/g, '&quot;')})">
+                        <div class="ac-name">${typeLabel} ${escHtml(c.client_name)}</div>
+                        ${detail ? '<div class="ac-detail">' + escHtml(detail) + '</div>' : ''}
+                    </div>`;
+                }).join('');
+                dropdown.classList.add('show');
+            } else {
+                dropdown.classList.remove('show');
+            }
+        } catch(e) {
+            dropdown.classList.remove('show');
+        }
+    }
+
+    function selectClient(client) {
+        document.getElementById('clientName').value = client.client_name || '';
+        document.getElementById('clientIdCode').value = client.id_code || '';
+        document.getElementById('acDropdownName').classList.remove('show');
+        document.getElementById('acDropdownCode').classList.remove('show');
+    }
+
+    function escHtml(s) {
+        if (!s) return '';
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    function initializeForm() {
+        const form = document.getElementById('realizationForm');
+        const checkInDate = document.getElementById('checkInDate');
+        const checkOutDate = document.getElementById('checkOutDate');
+
+        const today = new Date().toISOString().split('T')[0];
+
+        checkInDate.addEventListener('change', function() {
+            if (checkOutDate.value && checkOutDate.value < this.value) {
+                checkOutDate.value = '';
+            }
+            calculateNights();
+            calculateTotal();
+        });
+
+        checkOutDate.addEventListener('change', function() {
+            calculateNights();
+            calculateTotal();
+        });
+
+        // Add event listener to initial room price
+        document.querySelector('.room-price').addEventListener('input', calculateTotal);
+
+        form.addEventListener('submit', handleFormSubmit);
+    }
+
+    function addGuest() {
+        const container = document.getElementById('additionalGuests');
+        const newRow = document.createElement('table');
+        newRow.className = 'form-table';
+        newRow.style.marginTop = '10px';
+        newRow.innerHTML = `
+            <tr>
+                <td style="width: 40%;">
+                    <input type="text" class="guest-name" placeholder="სტუმრის სახელი გვარი">
+                </td>
+                <td style="width: 40%;">
+                    <input type="text" class="guest-id" placeholder="პირადი ნომერი">
+                </td>
+                <td style="width: 20%;">
+                    <button type="button" class="btn btn-danger" style="padding: 8px 15px; width: 100%;" onclick="removeGuest(this)">❌ წაშლა</button>
+                </td>
+            </tr>
+        `;
+        container.appendChild(newRow);
+    }
+
+    function removeGuest(button) {
+        button.closest('table').remove();
+    }
+
+    function addRoom() {
+        const container = document.getElementById('additionalRooms');
+        const newRow = document.createElement('table');
+        newRow.className = 'form-table';
+        newRow.style.marginTop = '10px';
+        newRow.innerHTML = `
+            <tr>
+                <td style="width: 25%;">
+                    <select class="room-type" disabled>
+                        <option value="">— ჯერ ნომერი აირჩიეთ —</option>
+                    </select>
+                </td>
+                <td style="width: 25%;">
+                    <select class="room-number" onchange="onRoomSelect(this)">
+                        <option value="">აირჩიეთ ნომერი</option>
+                    </select>
+                </td>
+                <td style="width: 25%;">
+                    <input type="number" class="room-price" min="0" step="0.01" placeholder="ფასი">
+                </td>
+                <td style="width: 25%;">
+                    <button type="button" class="btn btn-danger" style="padding: 8px 15px; width: 100%;" onclick="removeRoom(this)">❌ წაშლა</button>
+                </td>
+            </tr>
+        `;
+        container.appendChild(newRow);
+        
+        // ოთახების სია ავტვირთოთ ახალ select-ში
+        populateRoomSelects(newRow);
+        newRow.querySelector('.room-price').addEventListener('input', calculateTotal);
+    }
+
+    function removeRoom(button) {
+        button.closest('table').remove();
+        calculateTotal();
+    }
+
+    function calculateNights() {
+        const inVal = document.getElementById('checkInDate').value;
+        const outVal = document.getElementById('checkOutDate').value;
+        const nightsElement = document.getElementById('nightsCount');
+        
+        if (!inVal || !outVal) {
+            nightsElement.value = '';
+            return;
+        }
+
+        const checkIn = new Date(inVal + 'T00:00:00');
+        const checkOut = new Date(outVal + 'T00:00:00');
+        
+        if (!isNaN(checkIn.getTime()) && !isNaN(checkOut.getTime()) && checkOut > checkIn) {
+            const nights = Math.round((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+            nightsElement.value = nights;
+        } else {
+            nightsElement.value = 0;
+        }
+        calculateTotal();
+    }
+
+    function calculateTotal() {
+        const nights = parseInt(document.getElementById('nightsCount').value) || 0;
+        
+        // Collect all room prices
+        const roomPrices = document.querySelectorAll('.room-price');
+        let totalRoomPrice = 0;
+        let roomCount = 0;
+        
+        roomPrices.forEach(priceInput => {
+            const price = parseFloat(priceInput.value) || 0;
+            if (price > 0) {
+                totalRoomPrice += price;
+                roomCount++;
+            }
+        });
+        
+        const total = nights * totalRoomPrice;
+        
+        document.getElementById('roomCount').value = roomCount;
+        document.getElementById('totalCost').value = total.toFixed(2);
+    }
+
+    async function handleFormSubmit(e) {
+        e.preventDefault();
+        
+        if (validateForm()) {
+            await saveRealization();
+        }
+    }
+
+    function validateForm() {
+        let isValid = true;
+        const fields = ['invoiceNumber', 'clientName', 'nationality', 'checkInDate', 'checkOutDate', 'paymentType'];
+        
+        fields.forEach(field => {
+            const element = document.getElementById(field);
+            const error = document.getElementById(field + 'Error');
+            
+            if (!element.value) {
+                element.classList.add('error');
+                if (error) error.classList.add('show');
+                isValid = false;
+            } else {
+                element.classList.remove('error');
+                if (error) error.classList.remove('show');
+            }
+        });
+
+        // Validate at least one guest
+        const guestNames = document.querySelectorAll('.guest-name');
+        const guestIds = document.querySelectorAll('.guest-id');
+        let hasGuest = false;
+        
+        for (let i = 0; i < guestNames.length; i++) {
+            if (guestNames[i].value.trim() && guestIds[i].value.trim()) {
+                hasGuest = true;
+                break;
+            }
+        }
+
+        if (!hasGuest) {
+            alert('გთხოვთ შეიყვანოთ მინიმუმ ერთი სტუმრის მონაცემები');
+            isValid = false;
+        }
+
+        // Validate at least one room
+        const roomTypes = document.querySelectorAll('.room-type');
+        const roomNumbers = document.querySelectorAll('.room-number');
+        const roomPrices = document.querySelectorAll('.room-price');
+        let hasRoom = false;
+        
+        for (let i = 0; i < roomTypes.length; i++) {
+            if (roomNumbers[i].value && roomPrices[i].value) {
+                hasRoom = true;
+                break;
+            }
+        }
+
+        if (!hasRoom) {
+            alert('გთხოვთ შეიყვანოთ მინიმუმ ერთი ოთახის მონაცემები');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    async function saveRealization() {
+        // Collect guests
+        const guestNames = document.querySelectorAll('.guest-name');
+        const guestIds = document.querySelectorAll('.guest-id');
+        const guests = [];
+        
+        for (let i = 0; i < guestNames.length; i++) {
+            if (guestNames[i].value.trim() && guestIds[i].value.trim()) {
+                guests.push({
+                    name: guestNames[i].value.trim(),
+                    idNumber: guestIds[i].value.trim()
+                });
+            }
+        }
+
+        // Collect rooms
+        const roomTypes = document.querySelectorAll('.room-type');
+        const roomNumbers = document.querySelectorAll('.room-number');
+        const roomPrices = document.querySelectorAll('.room-price');
+        const rooms = [];
+        
+        for (let i = 0; i < roomTypes.length; i++) {
+            if (roomNumbers[i].value && roomPrices[i].value) {
+                rooms.push({
+                    type: roomTypes[i].value,
+                    number: roomNumbers[i].value,
+                    price: parseFloat(roomPrices[i].value)
+                });
+            }
+        }
+
+        const realization = {
+            invoiceNumber: document.getElementById('invoiceNumber').value,
+            clientName: document.getElementById('clientName').value,
+            clientIdCode: document.getElementById('clientIdCode').value,
+            nationality: document.getElementById('nationality').value,
+            guests: guests,
+            checkInDate: document.getElementById('checkInDate').value,
+            checkOutDate: document.getElementById('checkOutDate').value,
+            nightsCount: document.getElementById('nightsCount').value,
+            rooms: rooms,
+            roomCount: parseInt(document.getElementById('roomCount').value),
+            totalCost: parseFloat(document.getElementById('totalCost').value),
+            paymentType: document.getElementById('paymentType').value,
+            documentNumber: document.getElementById('documentNumber').value,
+            hasBreakfast: document.getElementById('hasBreakfast').checked,
+            hasTransfer: document.getElementById('hasTransfer').checked
+        };
+
+        // ბაზაში შენახვა
+        try {
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(realization)
+            });
+
+            if (res.status === 401) {
+                showAlert('❌ სესია ამოიწურა. გთხოვთ ხელახლა შედით სისტემაში.');
+                if (window.top) window.top.location.reload();
+                return;
+            }
+
+            const json = await res.json();
+
+            if (json.success) {
+                showAlert('✅ ჩანაწერი წარმატებით შეინახა ბაზაში! (ID: ' + json.id + ')');
+                loadRecordCount(); // განაახლე მთვლელი
+            } else {
+                showAlert('❌ ' + (json.error || 'შეცდომა შენახვისას'));
+                return;
+            }
+        } catch(e) {
+            showAlert('❌ სერვერთან კავშირის შეცდომა. შეამოწმეთ ინტერნეტი.');
+            console.error('Save error:', e);
+            return;
+        }
+
+        setTimeout(() => {
+            document.getElementById('realizationForm').reset();
+            document.getElementById('nightsCount').value = '';
+            document.getElementById('totalCost').value = '';
+            document.getElementById('roomCount').value = '';
+            
+            // Reset guests to one row
+            document.getElementById('additionalGuests').innerHTML = '';
+            
+            // Reset rooms to one row
+            document.getElementById('additionalRooms').innerHTML = '';
+            
+            generateInvoiceNumber();
+        }, 1500);
+    }
+
+    function showAlert(message) {
+        const alert = document.getElementById('successAlert');
+        const msg = document.getElementById('alertMessage');
+        msg.textContent = message;
+        alert.classList.add('show');
+        setTimeout(() => alert.classList.remove('show'), 3000);
+    }
+
+
+    function getNationalityName(code) {
+        const countries = {
+            'georgia': 'საქართველო', 'russia': 'რუსეთი', 'turkey': 'თურქეთი',
+            'armenia': 'სომხეთი', 'azerbaijan': 'აზერბაიჯანი', 'ukraine': 'უკრაინა',
+            'usa': 'აშშ', 'uk': 'დიდი ბრიტანეთი', 'germany': 'გერმანია',
+            'france': 'საფრანგეთი', 'israel': 'ისრაელი', 'china': 'ჩინეთი',
+            'india': 'ინდოეთი', 'other': 'სხვა'
+        };
+        return countries[code] || code;
+    }
+
+    function getPaymentName(type) {
+        const types = {
+            'cash': 'ნაღდი',
+            'card': 'ბარათი',
+            'transfer': 'ტრანსფერი',
+            'online': 'ონლაინ'
+        };
+        return types[type] || type;
+    }
+
+    function formatDate(dateStr) {
+        return new Date(dateStr).toLocaleDateString('ka-GE');
+    }
+</script>
+
+
+</body>
+</html>

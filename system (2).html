@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>სისტემის მართვა - HOTEL 725</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Sylfaen', Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        h2 { color: #2c3e50; margin-bottom: 20px; }
+        h3 { color: #34495e; margin: 25px 0 15px; border-bottom: 2px solid #eee; padding-bottom: 8px; }
+
+
+    .cards { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px; }
+    .card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); flex: 1; min-width: 280px; }
+    .card-header { font-size: 16px; font-weight: 700; color: #1a5490; margin-bottom: 15px; }
+
+    .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: #1a5490; color: white; }
+    .btn-primary:hover { background: #0d3b6e; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-danger { background: #e74c3c; color: white; }
+    .btn-danger:hover { background: #c0392b; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-row { display: flex; justify-content: space-between; padding: 8px 12px; background: #f8f9fa; border-radius: 5px; }
+    .stat-row .label { color: #666; font-size: 13px; }
+    .stat-row .value { font-weight: 700; color: #2c3e50; }
+
+    .log-box { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; font-family: 'Consolas', 'Courier New', monospace; font-size: 12px; line-height: 1.6; max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+    .log-box .log-error { color: #f44336; }
+    .log-box .log-info { color: #4caf50; }
+    .log-box .log-warn { color: #ff9800; }
+
+    .toolbar { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+    .info-text { font-size: 12px; color: #999; margin-top: 8px; }
+</style>
+
+
+</head>
+<body>
+    <h2>⚙️ სისტემის მართვა</h2>
+
+
+<!-- Backup Section -->
+<div class="cards">
+    <div class="card">
+        <div class="card-header">💾 ბაზის Backup</div>
+        <p style="color:#666; font-size:13px; margin-bottom:15px;">ყველა ცხრილის SQL ექსპორტი — phpMyAdmin-ში შემოტანა (import) შესაძლებელია</p>
+        <button class="btn btn-primary" onclick="downloadBackup()" id="backupBtn">📥 SQL Backup გადმოწერა</button>
+        <p class="info-text">ბოლო backup: <span id="lastBackupTime">—</span></p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">📊 ბაზის სტატისტიკა</div>
+        <div id="dbStats">
+            <p style="color:#999;">იტვირთება...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Error Logs Section -->
+<h3>📋 სისტემის ლოგები</h3>
+<div class="toolbar">
+    <button class="btn btn-primary" onclick="loadLogs()">🔄 განახლება</button>
+    <button class="btn btn-danger" onclick="clearLogs()">🗑️ გასუფთავება</button>
+    <span style="margin-left:auto; font-size:12px; color:#999;" id="logInfo"></span>
+</div>
+<div class="log-box" id="logBox">ლოგების ჩატვირთვა...</div>
+
+<script>
+    const BACKUP_API = 'backup_api.php';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadStats();
+        loadLogs();
+    });
+
+    // === Backup ===
+    function downloadBackup() {
+        const btn = document.getElementById('backupBtn');
+        btn.disabled = true;
+        btn.textContent = '⏳ მზადდება...';
+
+        // პირდაპირი გადმოწერა
+        const link = document.createElement('a');
+        link.href = BACKUP_API + '?action=export';
+        link.download = 'hotel725_backup.sql';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.innerHTML = '📥 SQL Backup გადმოწერა';
+            document.getElementById('lastBackupTime').textContent = new Date().toLocaleString('ka-GE');
+        }, 2000);
+    }
+
+    // === სტატისტიკა ===
+    async function loadStats() {
+        try {
+            const res = await fetch(BACKUP_API + '?action=stats', { credentials: 'include' });
+            const json = await res.json();
+
+            if (json.success) {
+                let html = '<div class="stat-grid">';
+                const tableNames = {
+                    'rooms': '🚪 ოთახები',
+                    'realizations': '📋 რეალიზაციები',
+                    'realization_guests': '👤 სტუმრები',
+                    'realization_rooms': '🛏️ ოთახების ჩანაწერები',
+                    'bookings': '📅 ჯავშნები',
+                    'blocked_rooms': '🔒 ბლოკირებული'
+                };
+
+                for (const [table, info] of Object.entries(json.tables)) {
+                    const name = tableNames[table] || table;
+                    const color = info.exists ? (info.count > 0 ? '#28a745' : '#999') : '#e74c3c';
+                    html += `<div class="stat-row">
+                        <span class="label">${name}</span>
+                        <span class="value" style="color:${color};">${info.exists ? info.count + ' ჩანაწერი' : '❌ არ არსებობს'}</span>
+                    </div>`;
+                }
+
+                html += `<div class="stat-row">
+                    <span class="label">📝 ლოგის ზომა</span>
+                    <span class="value">${json.logSizeHuman}</span>
+                </div>`;
+                html += `<div class="stat-row">
+                    <span class="label">🕐 სერვერის დრო</span>
+                    <span class="value">${json.serverTime}</span>
+                </div>`;
+                html += '</div>';
+
+                document.getElementById('dbStats').innerHTML = html;
+            }
+        } catch(e) {
+            document.getElementById('dbStats').innerHTML = '<p style="color:#e74c3c;">❌ კავშირის შეცდომა</p>';
+        }
+    }
+
+    // === ლოგები ===
+    async function loadLogs() {
+        try {
+            const res = await fetch(BACKUP_API + '?action=logs&lines=200', { credentials: 'include' });
+            const json = await res.json();
+
+            if (json.success) {
+                const box = document.getElementById('logBox');
+                if (!json.logs || json.logs.trim() === '') {
+                    box.textContent = '✅ ლოგი ცარიელია — ყველაფერი კარგადაა';
+                } else {
+                    box.innerHTML = formatLogs(json.logs);
+                }
+                document.getElementById('logInfo').textContent = 
+                    'სულ: ' + (json.totalLines || 0) + ' ხაზი';
+            }
+        } catch(e) {
+            document.getElementById('logBox').textContent = '❌ ლოგის ჩატვირთვა ვერ მოხერხდა';
+        }
+    }
+
+    function formatLogs(text) {
+        return text.split('\n').map(line => {
+            if (line.includes('error') || line.includes('Error') || line.includes('failed')) {
+                return '<span class="log-error">' + esc(line) + '</span>';
+            } else if (line.includes('success') || line.includes('created') || line.includes('Login success')) {
+                return '<span class="log-info">' + esc(line) + '</span>';
+            } else if (line.includes('deleted') || line.includes('cleared')) {
+                return '<span class="log-warn">' + esc(line) + '</span>';
+            }
+            return esc(line);
+        }).join('\n');
+    }
+
+    async function clearLogs() {
+        if (!confirm('ნამდვილად გსურთ ლოგის გასუფთავება?')) return;
+        try {
+            const res = await fetch(BACKUP_API + '?action=clear_logs', {
+                method: 'POST',
+                credentials: 'include'
+            });
+            const json = await res.json();
+            if (json.success) {
+                loadLogs();
+                loadStats();
+            }
+        } catch(e) {
+            alert('❌ შეცდომა');
+        }
+    }
+
+    function esc(s) {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,2416 @@
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>სასტუმროს მართვის პანელი</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+
+body {
+font-family: 'Sylfaen', 'DejaVu Sans', 'Segoe UI', sans-serif;
+background: #f5f5f5;
+}
+
+.header {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+color: white;
+padding: 20px;
+box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header h1 {
+text-align: center;
+font-size: 28px;
+}
+
+.container {
+max-width: 1400px;
+margin: 0 auto;
+padding: 20px;
+}
+
+.tabs {
+display: flex;
+gap: 10px;
+margin-bottom: 20px;
+background: white;
+padding: 10px;
+border-radius: 10px;
+box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.tab-btn {
+flex: 1;
+padding: 15px;
+border: none;
+background: #f0f0f0;
+border-radius: 8px;
+cursor: pointer;
+font-size: 16px;
+font-weight: 600;
+transition: all 0.3s;
+}
+
+.tab-btn:hover {
+background: #e0e0e0;
+}
+
+.tab-btn.active {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+color: white;
+}
+
+.tab-content {
+display: none;
+}
+
+.tab-content.active {
+display: block;
+}
+
+/* Form Styles */
+.booking-form-container {
+background: white;
+border-radius: 15px;
+padding: 30px;
+box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+max-width: 900px;
+margin: 0 auto;
+}
+
+.form-section-title {
+font-size: 20px;
+color: #667eea;
+margin: 25px 0 15px 0;
+padding-bottom: 10px;
+border-bottom: 2px solid #667eea;
+}
+
+.form-group {
+margin-bottom: 20px;
+}
+
+label {
+display: block;
+margin-bottom: 8px;
+color: #333;
+font-weight: 600;
+font-size: 14px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+width: 100%;
+padding: 12px 15px;
+border: 2px solid #e0e0e0;
+border-radius: 8px;
+font-size: 14px;
+transition: all 0.3s;
+font-family: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+outline: none;
+border-color: #667eea;
+box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.row {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 15px;
+}
+
+.row-3 {
+display: grid;
+grid-template-columns: 1fr 1fr 1fr;
+gap: 15px;
+}
+
+/* Card Styles */
+.card {
+background: #f8f9fa;
+border: 2px solid #e0e0e0;
+border-radius: 10px;
+padding: 20px;
+margin-bottom: 20px;
+}
+
+.card-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 15px;
+}
+
+.card-header h4 {
+color: #667eea;
+font-size: 18px;
+}
+
+/* Buttons */
+.btn {
+padding: 10px 20px;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+font-size: 14px;
+font-weight: 600;
+transition: all 0.3s;
+}
+
+.btn-primary {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+color: white;
+}
+
+.btn-primary:hover {
+transform: translateY(-2px);
+box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-success {
+background: #28a745;
+color: white;
+}
+
+.btn-success:hover {
+background: #218838;
+}
+
+.btn-danger {
+background: #dc3545;
+color: white;
+}
+
+.btn-danger:hover {
+background: #c82333;
+}
+
+.btn-info {
+background: #17a2b8;
+color: white;
+}
+
+.btn-warning {
+background: #ffc107;
+color: #000;
+}
+
+.btn-full {
+width: 100%;
+padding: 15px;
+font-size: 16px;
+}
+
+.add-btn {
+width: 100%;
+margin-bottom: 20px;
+}
+
+.remove-btn {
+padding: 8px 15px;
+font-size: 14px;
+}
+
+/* Price Display */
+.price-breakdown {
+background: #fff;
+border: 2px solid #667eea;
+border-radius: 8px;
+padding: 15px;
+margin-top: 20px;
+}
+
+.price-breakdown h4 {
+color: #667eea;
+margin-bottom: 10px;
+}
+
+.price-item {
+display: flex;
+justify-content: space-between;
+padding: 8px 0;
+border-bottom: 1px solid #e0e0e0;
+}
+
+.price-item:last-child {
+border-bottom: none;
+font-weight: bold;
+font-size: 18px;
+color: #667eea;
+margin-top: 10px;
+padding-top: 15px;
+border-top: 2px solid #667eea;
+}
+
+.price-display {
+background: #f8f9fa;
+padding: 15px;
+border-radius: 8px;
+text-align: center;
+margin-top: 10px;
+}
+
+.price-amount {
+font-size: 32px;
+color: #667eea;
+font-weight: bold;
+}
+
+/* Table Styles */
+table {
+width: 100%;
+background: white;
+border-radius: 10px;
+overflow: hidden;
+box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+border-collapse: collapse;
+}
+
+thead {
+background: #667eea;
+color: white;
+}
+
+th {
+padding: 15px;
+text-align: left;
+font-weight: 600;
+font-size: 14px;
+}
+
+td {
+padding: 15px;
+border-bottom: 1px solid #e0e0e0;
+font-size: 14px;
+}
+
+tbody tr:hover {
+background: #f8f9fa;
+}
+
+.status {
+padding: 5px 12px;
+border-radius: 20px;
+font-size: 12px;
+font-weight: 600;
+display: inline-block;
+}
+
+.status.confirmed {
+background: #d4edda;
+color: #155724;
+}
+
+.status.checked_in {
+background: #cce5ff;
+color: #004085;
+}
+
+.status.checked_out {
+background: #d1ecf1;
+color: #0c5460;
+}
+
+.status.cancelled {
+background: #f8d7da;
+color: #721c24;
+}
+
+.actions {
+display: flex;
+gap: 5px;
+flex-wrap: wrap;
+}
+
+.action-btn {
+padding: 6px 12px;
+font-size: 12px;
+border-radius: 5px;
+}
+
+/* Modal Styles */
+.modal {
+display: none;
+position: fixed;
+z-index: 1000;
+left: 0;
+top: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0,0,0,0.5);
+overflow-y: auto;
+}
+
+.modal.show {
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.modal-content {
+background: white;
+padding: 30px;
+border-radius: 15px;
+max-width: 800px;
+width: 90%;
+max-height: 90vh;
+overflow-y: auto;
+position: relative;
+}
+
+.modal-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 20px;
+padding-bottom: 15px;
+border-bottom: 2px solid #667eea;
+}
+
+.modal-header h2 {
+color: #667eea;
+}
+
+.close-btn {
+background: #dc3545;
+color: white;
+border: none;
+padding: 8px 15px;
+border-radius: 5px;
+cursor: pointer;
+font-size: 16px;
+}
+
+.info-grid {
+display: grid;
+gap: 15px;
+margin-bottom: 20px;
+}
+
+.info-row {
+display: flex;
+padding: 10px;
+background: #f8f9fa;
+border-radius: 5px;
+}
+
+.info-label {
+font-weight: 600;
+color: #666;
+min-width: 150px;
+}
+
+.info-value {
+color: #333;
+flex: 1;
+}
+
+/* Messages */
+.success-message {
+background: #2ecc71;
+color: white;
+padding: 15px;
+border-radius: 8px;
+text-align: center;
+margin-bottom: 20px;
+display: none;
+}
+
+.success-message.show {
+display: block;
+animation: slideDown 0.3s ease;
+}
+
+.error-message {
+color: #e74c3c;
+font-size: 12px;
+margin-top: 5px;
+display: none;
+}
+
+.error-message.show {
+display: block;
+}
+
+input.error,
+select.error {
+border-color: #e74c3c;
+}
+
+@keyframes slideDown {
+from {
+opacity: 0;
+transform: translateY(-10px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+
+.checkbox-group label {
+font-weight: normal;
+display: flex;
+align-items: center;
+cursor: pointer;
+margin-bottom: 8px;
+}
+
+.checkbox-group input[type="checkbox"] {
+width: auto;
+margin-right: 8px;
+}
+
+.filters {
+background: white;
+padding: 20px;
+border-radius: 10px;
+box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+margin-bottom: 20px;
+display: flex;
+gap: 15px;
+flex-wrap: wrap;
+}
+
+.loading {
+text-align: center;
+padding: 50px;
+font-size: 18px;
+color: #666;
+}
+
+.no-data {
+text-align: center;
+padding: 50px;
+color: #999;
+background: white;
+border-radius: 10px;
+}
+
+@media print {
+body * {
+visibility: hidden;
+}
+.print-area, .print-area * {
+visibility: visible;
+}
+.print-area {
+position: absolute;
+left: 0;
+top: 0;
+width: 100%;
+}
+}
+
+@media (max-width: 768px) {
+.row, .row-3 {
+grid-template-columns: 1fr;
+}
+
+.tabs {
+flex-direction: column;
+}
+
+table {
+font-size: 12px;
+}
+
+th, td {
+padding: 8px 5px;
+}
+
+.actions {
+flex-direction: column;
+}
+
+.action-btn {
+width: 100%;
+}
+}
+
+/* Autocomplete */
+.ac-dropdown { display:none; position:absolute; top:100%; left:0; right:0; background:white; border:2px solid #667eea; border-top:none; border-radius:0 0 6px 6px; max-height:200px; overflow-y:auto; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+.ac-dropdown.show { display:block; }
+.ac-item { padding:8px 12px; cursor:pointer; font-size:13px; border-bottom:1px solid #f0f0f0; }
+.ac-item:hover { background:#e8f0fe; }
+.ac-item .ac-name { font-weight:600; color:#2c3e50; }
+.ac-item .ac-detail { font-size:11px; color:#888; margin-top:2px; }
+</style>
+
+
+</head>
+<body>
+<div class="header">
+<h1>🏨 სასტუმროს მართვის პანელი</h1>
+</div>
+
+
+<div class="container">
+<div class="tabs">
+<button class="tab-btn active" onclick="switchTab('new-booking', this)">➕ ახალი დაჯავშნა</button>
+<button class="tab-btn" onclick="switchTab('bookings-list', this)">📋 ჯავშნების სია</button>
+</div>
+
+<div class="success-message" id="successMessage"></div>
+
+<!-- Tab 1: New Booking Form -->
+<div id="new-booking" class="tab-content active">
+<div class="booking-form-container">
+<h2 style="text-align: center; color: #667eea; margin-bottom: 30px;">ახალი ჯავშნის შექმნა</h2>
+
+<form id="bookingForm">
+<!-- Client Information -->
+<div class="form-section-title">შემკვეთის ინფორმაცია</div>
+
+<div class="form-group">
+<label for="clientType">შემკვეთის ტიპი *</label>
+<select id="clientType" name="clientType">
+<option value="individual">ფიზიკური პირი</option>
+<option value="agency">ტურისტული სააგენტო</option>
+<option value="company">კომპანია</option>
+</select>
+</div>
+
+<div class="form-group" style="position:relative;">
+<label for="clientName">შემკვეთის სახელი/დასახელება *</label>
+<input type="text" id="clientName" name="clientName" placeholder="მაგ: გიორგი მელაძე ან Travel Georgia LTD" autocomplete="off">
+<div class="ac-dropdown" id="acDropdownName"></div>
+<span class="error-message" id="clientNameError">გთხოვთ შეიყვანოთ შემკვეთის სახელი</span>
+</div>
+
+<div class="row-3">
+<div class="form-group" style="position:relative;">
+<label for="clientIdCode">საიდენტიფიკაციო კოდი</label>
+<input type="text" id="clientIdCode" name="clientIdCode" placeholder="მაგ: 445418423 ან 01001012345" autocomplete="off">
+<div class="ac-dropdown" id="acDropdownCode"></div>
+</div>
+<div class="form-group">
+<label for="clientEmail">ელ. ფოსტა *</label>
+<input type="email" id="clientEmail" name="clientEmail" placeholder="example@mail.com">
+<span class="error-message" id="clientEmailError">გთხოვთ შეიყვანოთ სწორი ელ. ფოსტა</span>
+</div>
+
+<div class="form-group">
+<label for="clientPhone">ტელეფონი *</label>
+<input type="tel" id="clientPhone" name="clientPhone" placeholder="+995 555 123 456">
+<span class="error-message" id="clientPhoneError">გთხოვთ შეიყვანოთ ტელეფონი</span>
+</div>
+</div>
+
+<!-- Guests Information -->
+<div class="form-section-title">სტუმრების ინფორმაცია</div>
+
+<div id="guestsContainer">
+<!-- Guest 1 (default) -->
+<div class="card" data-guest-index="1">
+<div class="card-header">
+<h4>სტუმარი #1</h4>
+<button type="button" class="btn btn-danger remove-btn" onclick="removeGuest(1)" style="display: none;">❌ წაშლა</button>
+</div>
+
+<div class="row">
+<div class="form-group">
+<label for="guestName1">სახელი და გვარი *</label>
+<input type="text" id="guestName1" name="guestName1" placeholder="მაგ: ნინო ბერიძე">
+<span class="error-message" id="guestName1Error">გთხოვთ შეიყვანოთ სახელი</span>
+</div>
+
+<div class="form-group">
+<label for="guestIdNumber1">პირადი ნომერი *</label>
+<input type="text" id="guestIdNumber1" name="guestIdNumber1" placeholder="მაგ: 01001012345">
+<span class="error-message" id="guestIdNumber1Error">გთხოვთ შეიყვანოთ პირადი ნომერი</span>
+</div>
+</div>
+
+<div class="row">
+<div class="form-group">
+<label for="guestCountry1">ქვეყანა *</label>
+<select id="guestCountry1" name="guestCountry1">
+<option value="">აირჩიეთ ქვეყანა</option>
+<option value="georgia">საქართველო</option>
+<option value="russia">რუსეთი</option>
+<option value="turkey">თურქეთი</option>
+<option value="armenia">სომხეთი</option>
+<option value="azerbaijan">აზერბაიჯანი</option>
+<option value="ukraine">უკრაინა</option>
+<option value="usa">აშშ</option>
+<option value="uk">დიდი ბრიტანეთი</option>
+<option value="germany">გერმანია</option>
+<option value="france">საფრანგეთი</option>
+<option value="israel">ისრაელი</option>
+<option value="china">ჩინეთი</option>
+<option value="india">ინდოეთი</option>
+<option value="other">სხვა</option>
+</select>
+<span class="error-message" id="guestCountry1Error">გთხოვთ აირჩიოთ ქვეყანა</span>
+</div>
+
+<div class="form-group">
+<label for="guestPhone1">ტელეფონი (არააუცილებელი)</label>
+<input type="tel" id="guestPhone1" name="guestPhone1" placeholder="+995 555 123 456">
+</div>
+</div>
+</div>
+</div>
+
+<button type="button" class="btn btn-success add-btn" onclick="addGuest()">➕ დაამატე სტუმარი</button>
+
+<!-- Dates -->
+<div class="form-section-title">თარიღები</div>
+
+<div class="row">
+<div class="form-group">
+<label for="checkIn">დაბინავება *</label>
+<input type="date" id="checkIn" name="checkIn">
+<span class="error-message" id="checkInError">გთხოვთ აირჩიოთ თარიღი</span>
+</div>
+
+<div class="form-group">
+<label for="checkOut">გასვლა *</label>
+<input type="date" id="checkOut" name="checkOut">
+<span class="error-message" id="checkOutError">გთხოვთ აირჩიოთ თარიღი</span>
+</div>
+</div>
+
+<!-- Rooms -->
+<div class="form-section-title">ოთახების არჩევა</div>
+
+<div id="roomsContainer">
+<!-- Room 1 (default) -->
+<div class="card" data-room-index="1">
+<div class="card-header">
+<h4>ოთახი #1</h4>
+<button type="button" class="btn btn-danger remove-btn" onclick="removeRoom(1)" style="display: none;">❌ წაშლა</button>
+</div>
+
+<div class="row">
+<div class="form-group">
+<label for="roomType1">ოთახის ტიპი *</label>
+<select id="roomType1" name="roomType1">
+<option value="">აირჩიეთ ოთახი</option>
+<option value="single">Single - ერთადგილიანი</option>
+<option value="double">Double - ორადგილიანი (ერთი საწოლი)</option>
+<option value="twin">Twin - ორადგილიანი (ორი საწოლი)</option>
+<option value="triple">Triple - სამადგილიანი</option>
+<option value="lux">LUX - ლუქს ნომერი</option>
+<option value="extra_bed">Extra Bed - დამატებითი საწოლი</option>
+</select>
+<span class="error-message" id="roomType1Error">აირჩიეთ ოთახის ტიპი</span>
+</div>
+
+<div class="form-group">
+<label for="roomPrice1">ფასი (ლ/ღამე) *</label>
+<input type="number" id="roomPrice1" name="roomPrice1" min="0" step="0.01" placeholder="მაგ: 150">
+<span class="error-message" id="roomPrice1Error">შეიყვანეთ ფასი</span>
+</div>
+</div>
+
+<div class="form-group">
+<label for="roomNotes1">შენიშვნა (არააუცილებელი)</label>
+<input type="text" id="roomNotes1" name="roomNotes1" placeholder="მაგ: ზღვის ხედით">
+</div>
+</div>
+</div>
+
+<button type="button" class="btn btn-success add-btn" onclick="addRoom()">➕ დაამატე ოთახი</button>
+
+<!-- Services -->
+<div class="form-section-title">დამატებითი სერვისები</div>
+
+<div class="checkbox-group">
+<label>
+<input type="checkbox" name="services" value="breakfast" data-price="15">
+საუზმე (+15ლ/დღე)
+</label>
+<label>
+<input type="checkbox" name="services" value="parking" data-price="15">
+პარკინგი (+15ლ/დღე)
+</label>
+<label>
+<input type="checkbox" name="services" value="spa" data-price="50">
+სპა ცენტრი (+50ლ/დღე)
+</label>
+</div>
+
+<!-- Price Display -->
+<div class="price-breakdown">
+<h4>ფასების დეტალები:</h4>
+<div id="priceBreakdown"><p style="color: #999;">აირჩიეთ თარიღები და ოთახები</p></div>
+</div>
+
+<div class="price-display">
+<h3>სულ გადასახდელი:</h3>
+<div class="price-amount" id="totalPrice">0ლ</div>
+</div>
+
+<button type="submit" class="btn btn-primary btn-full">💾 დაჯავშნა</button>
+</form>
+</div>
+</div>
+
+<!-- Tab 2: Bookings List -->
+<div id="bookings-list" class="tab-content">
+<div class="filters">
+<input type="text" id="searchEmail" placeholder="ძებნა ელ.ფოსტით...">
+<input type="date" id="filterDate" placeholder="თარიღი">
+<select id="filterStatus">
+<option value="">ყველა სტატუსი</option>
+<option value="confirmed">დადასტურებული</option>
+<option value="checked_in">დაბინავებული</option>
+<option value="checked_out">გასული</option>
+<option value="cancelled">გაუქმებული</option>
+</select>
+<button class="btn btn-primary" onclick="loadBookings()">🔍 ფილტრაცია</button>
+<button class="btn btn-warning" onclick="clearFilters()">❌ გასუფთავება</button>
+</div>
+
+<div id="loadingMessage" class="loading">იტვირთება...</div>
+
+<table id="bookingsTable" style="display: none;">
+<thead>
+<tr>
+<th>ინვოისი</th>
+<th>შემკვეთი</th>
+<th>ელ.ფოსტა</th>
+<th>დაბინავება</th>
+<th>გასვლა</th>
+<th>თანხა</th>
+<th>სტატუსი</th>
+<th>მოქმედებები</th>
+</tr>
+</thead>
+<tbody id="bookingsTableBody">
+</tbody>
+</table>
+
+<div id="noDataMessage" class="no-data" style="display: none;">
+დაჯავშნები არ მოიძებნა
+</div>
+</div>
+</div>
+
+<!-- View Modal -->
+<div id="viewModal" class="modal">
+<div class="modal-content">
+<div class="modal-header">
+<h2>📄 დაჯავშნის დეტალები</h2>
+<button class="close-btn" onclick="closeViewModal()">✕</button>
+</div>
+<div id="viewModalContent"></div>
+</div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal">
+<div class="modal-content">
+<div class="modal-header">
+<h2>✏️ დაჯავშნის რედაქტირება</h2>
+<button class="close-btn" onclick="closeEditModal()">✕</button>
+</div>
+<div id="editModalContent"></div>
+</div>
+</div>
+
+<script>
+let roomCount = 1;
+let guestCount = 1;
+let currentBookingData = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+initializeForm();
+});
+
+function initializeForm() {
+const form = document.getElementById('bookingForm');
+const checkInInput = document.getElementById('checkIn');
+const checkOutInput = document.getElementById('checkOut');
+const servicesCheckboxes = document.querySelectorAll('input[name="services"]');
+
+// Set minimum date to today
+const today = new Date().toISOString().split('T')[0];
+checkInInput.min = today;
+checkOutInput.min = today;
+
+checkInInput.addEventListener('change', function() {
+checkOutInput.min = this.value;
+calculatePrice();
+});
+
+checkOutInput.addEventListener('change', calculatePrice);
+servicesCheckboxes.forEach(cb => cb.addEventListener('change', calculatePrice));
+
+addRoomEventListeners(1);
+
+form.addEventListener('submit', handleFormSubmit);
+}
+
+function addRoomEventListeners(roomIndex) {
+const roomType = document.getElementById(`roomType${roomIndex}`);
+const roomPrice = document.getElementById(`roomPrice${roomIndex}`);
+
+if (roomType) roomType.addEventListener('change', calculatePrice);
+if (roomPrice) roomPrice.addEventListener('input', calculatePrice);
+}
+
+function calculatePrice() {
+const checkIn = new Date(document.getElementById('checkIn').value);
+const checkOut = new Date(document.getElementById('checkOut').value);
+const totalPriceElement = document.getElementById('totalPrice');
+const breakdownElement = document.getElementById('priceBreakdown');
+
+if (!document.getElementById('checkIn').value || !document.getElementById('checkOut').value) {
+totalPriceElement.textContent = '0ლ';
+breakdownElement.innerHTML = '<p style="color: #999;">აირჩიეთ თარიღები</p>';
+return;
+}
+
+const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+
+if (nights <= 0) {
+totalPriceElement.textContent = '0ლ';
+breakdownElement.innerHTML = '<p style="color: #999;">გასვლის თარიღი უნდა იყოს დაბინავების შემდეგ</p>';
+return;
+}
+
+let totalRoomsPrice = 0;
+let breakdownHTML = '';
+
+// Calculate rooms
+for (let i = 1; i <= roomCount; i++) {
+const roomCard = document.querySelector(`[data-room-index="${i}"]`);
+if (!roomCard) continue;
+
+const roomType = document.getElementById(`roomType${i}`);
+const roomPrice = document.getElementById(`roomPrice${i}`);
+
+if (roomType && roomType.value && roomPrice && roomPrice.value) {
+const price = parseFloat(roomPrice.value) || 0;
+const roomTotal = price * nights;
+totalRoomsPrice += roomTotal;
+
+const roomTypeName = roomType.options[roomType.selectedIndex].text;
+breakdownHTML += `
+<div class="price-item">
+<span>ოთახი #${i} (${roomTypeName}): ${price}ლ × ${nights} ღამე</span>
+<span>${roomTotal}ლ</span>
+</div>
+`;
+}
+}
+
+// Calculate services
+let servicesPrice = 0;
+const servicesCheckboxes = document.querySelectorAll('input[name="services"]');
+servicesCheckboxes.forEach(cb => {
+if (cb.checked) {
+const servicePrice = parseInt(cb.dataset.price) || 0;
+const serviceTotal = servicePrice * nights;
+servicesPrice += serviceTotal;
+
+let serviceName = '';
+if (cb.value === 'breakfast') serviceName = 'საუზმე';
+if (cb.value === 'parking') serviceName = 'პარკინგი';
+if (cb.value === 'spa') serviceName = 'სპა ცენტრი';
+
+breakdownHTML += `
+<div class="price-item">
+<span>${serviceName}: ${servicePrice}ლ × ${nights} დღე</span>
+<span>${serviceTotal}ლ</span>
+</div>
+`;
+}
+});
+
+const grandTotal = totalRoomsPrice + servicesPrice;
+
+if (breakdownHTML) {
+breakdownHTML += `
+<div class="price-item">
+<span>სულ:</span>
+<span>${grandTotal}ლ</span>
+</div>
+`;
+breakdownElement.innerHTML = breakdownHTML;
+} else {
+breakdownElement.innerHTML = '<p style="color: #999;">აირჩიეთ ოთახი და შეიყვანეთ ფასი</p>';
+}
+
+totalPriceElement.textContent = grandTotal + 'ლ';
+}
+
+function addGuest() {
+guestCount++;
+const container = document.getElementById('guestsContainer');
+
+const card = document.createElement('div');
+card.className = 'card';
+card.setAttribute('data-guest-index', guestCount);
+
+card.innerHTML = `
+<div class="card-header">
+<h4>სტუმარი #${guestCount}</h4>
+<button type="button" class="btn btn-danger remove-btn" onclick="removeGuest(${guestCount})">❌ წაშლა</button>
+</div>
+
+<div class="row">
+<div class="form-group">
+<label for="guestName${guestCount}">სახელი და გვარი *</label>
+<input type="text" id="guestName${guestCount}" name="guestName${guestCount}" placeholder="მაგ: ნინო ბერიძე">
+<span class="error-message" id="guestName${guestCount}Error">გთხოვთ შეიყვანოთ სახელი</span>
+</div>
+
+<div class="form-group">
+<label for="guestIdNumber${guestCount}">პირადი ნომერი *</label>
+<input type="text" id="guestIdNumber${guestCount}" name="guestIdNumber${guestCount}" placeholder="მაგ: 01001012345">
+<span class="error-message" id="guestIdNumber${guestCount}Error">გთხოვთ შეიყვანოთ პირადი ნომერი</span>
+</div>
+</div>
+
+<div class="row">
+<div class="form-group">
+<label for="guestCountry${guestCount}">ქვეყანა *</label>
+<select id="guestCountry${guestCount}" name="guestCountry${guestCount}">
+<option value="">აირჩიეთ ქვეყანა</option>
+<option value="georgia">საქართველო</option>
+<option value="russia">რუსეთი</option>
+<option value="turkey">თურქეთი</option>
+<option value="armenia">სომხეთი</option>
+<option value="azerbaijan">აზერბაიჯანი</option>
+<option value="ukraine">უკრაინა</option>
+<option value="usa">აშშ</option>
+<option value="uk">დიდი ბრიტანეთი</option>
+<option value="germany">გერმანია</option>
+<option value="france">საფრანგეთი</option>
+<option value="israel">ისრაელი</option>
+<option value="china">ჩინეთი</option>
+<option value="india">ინდოეთი</option>
+<option value="other">სხვა</option>
+</select>
+<span class="error-message" id="guestCountry${guestCount}Error">გთხოვთ აირჩიოთ ქვეყანა</span>
+</div>
+
+<div class="form-group">
+<label for="guestPhone${guestCount}">ტელეფონი (არააუცილებელი)</label>
+<input type="tel" id="guestPhone${guestCount}" name="guestPhone${guestCount}" placeholder="+995 555 123 456">
+</div>
+</div>
+`;
+
+container.appendChild(card);
+
+if (guestCount > 1) {
+const firstBtn = document.querySelector('[data-guest-index="1"] .remove-btn');
+if (firstBtn) firstBtn.style.display = 'inline-block';
+}
+}
+
+function removeGuest(index) {
+const card = document.querySelector(`[data-guest-index="${index}"]`);
+if (card) {
+card.remove();
+
+const allCards = document.querySelectorAll('#guestsContainer .card');
+guestCount = allCards.length;
+
+allCards.forEach((c, i) => {
+const newIndex = i + 1;
+c.setAttribute('data-guest-index', newIndex);
+c.querySelector('h4').textContent = `სტუმარი #${newIndex}`;
+
+const removeBtn = c.querySelector('.remove-btn');
+if (removeBtn) {
+removeBtn.setAttribute('onclick', `removeGuest(${newIndex})`);
+if (guestCount === 1) {
+removeBtn.style.display = 'none';
+}
+}
+});
+}
+}
+
+function addRoom() {
+roomCount++;
+const container = document.getElementById('roomsContainer');
+
+const card = document.createElement('div');
+card.className = 'card';
+card.setAttribute('data-room-index', roomCount);
+
+card.innerHTML = `
+<div class="card-header">
+<h4>ოთახი #${roomCount}</h4>
+<button type="button" class="btn btn-danger remove-btn" onclick="removeRoom(${roomCount})">❌ წაშლა</button>
+</div>
+
+<div class="row">
+<div class="form-group">
+<label for="roomType${roomCount}">ოთახის ტიპი *</label>
+<select id="roomType${roomCount}" name="roomType${roomCount}">
+<option value="">აირჩიეთ ოთახი</option>
+<option value="single">Single - ერთადგილიანი</option>
+<option value="double">Double - ორადგილიანი (ერთი საწოლი)</option>
+<option value="twin">Twin - ორადგილიანი (ორი საწოლი)</option>
+<option value="triple">Triple - სამადგილიანი</option>
+<option value="lux">LUX - ლუქს ნომერი</option>
+<option value="extra_bed">Extra Bed - დამატებითი საწოლი</option>
+</select>
+<span class="error-message" id="roomType${roomCount}Error">აირჩიეთ ოთახის ტიპი</span>
+</div>
+
+<div class="form-group">
+<label for="roomPrice${roomCount}">ფასი (ლ/ღამე) *</label>
+<input type="number" id="roomPrice${roomCount}" name="roomPrice${roomCount}" min="0" step="0.01" placeholder="მაგ: 150">
+<span class="error-message" id="roomPrice${roomCount}Error">შეიყვანეთ ფასი</span>
+</div>
+</div>
+
+<div class="form-group">
+<label for="roomNotes${roomCount}">შენიშვნა (არააუცილებელი)</label>
+<input type="text" id="roomNotes${roomCount}" name="roomNotes${roomCount}" placeholder="მაგ: ზღვის ხედით">
+</div>
+`;
+
+container.appendChild(card);
+addRoomEventListeners(roomCount);
+
+if (roomCount > 1) {
+const firstBtn = document.querySelector('[data-room-index="1"] .remove-btn');
+if (firstBtn) firstBtn.style.display = 'inline-block';
+}
+}
+
+function removeRoom(index) {
+const card = document.querySelector(`[data-room-index="${index}"]`);
+if (card) {
+card.remove();
+
+const allCards = document.querySelectorAll('#roomsContainer .card');
+roomCount = allCards.length;
+
+allCards.forEach((c, i) => {
+const newIndex = i + 1;
+c.setAttribute('data-room-index', newIndex);
+c.querySelector('h4').textContent = `ოთახი #${newIndex}`;
+
+const removeBtn = c.querySelector('.remove-btn');
+if (removeBtn) {
+removeBtn.setAttribute('onclick', `removeRoom(${newIndex})`);
+if (roomCount === 1) {
+removeBtn.style.display = 'none';
+}
+}
+});
+
+calculatePrice();
+}
+}
+
+function handleFormSubmit(e) {
+e.preventDefault();
+
+if (validateForm()) {
+saveBooking();
+}
+}
+
+function validateForm() {
+let isValid = true;
+
+// Validate client
+const clientName = document.getElementById('clientName');
+if (clientName.value.trim().length < 2) {
+showError('clientName');
+isValid = false;
+} else {
+hideError('clientName');
+}
+
+const clientEmail = document.getElementById('clientEmail');
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if (!emailRegex.test(clientEmail.value)) {
+showError('clientEmail');
+isValid = false;
+} else {
+hideError('clientEmail');
+}
+
+const clientPhone = document.getElementById('clientPhone');
+if (clientPhone.value.trim().length < 9) {
+showError('clientPhone');
+isValid = false;
+} else {
+hideError('clientPhone');
+}
+
+// Validate at least one guest
+let hasGuest = false;
+for (let i = 1; i <= guestCount; i++) {
+const card = document.querySelector(`[data-guest-index="${i}"]`);
+if (!card) continue;
+
+const guestName = document.getElementById(`guestName${i}`);
+const guestIdNumber = document.getElementById(`guestIdNumber${i}`);
+const guestCountry = document.getElementById(`guestCountry${i}`);
+
+if (guestName && guestName.value.trim()) {
+hasGuest = true;
+
+if (guestName.value.trim().length < 2) {
+showError(`guestName${i}`);
+isValid = false;
+} else {
+hideError(`guestName${i}`);
+}
+
+if (!guestIdNumber.value.trim()) {
+showError(`guestIdNumber${i}`);
+isValid = false;
+} else {
+hideError(`guestIdNumber${i}`);
+}
+
+if (!guestCountry.value) {
+showError(`guestCountry${i}`);
+isValid = false;
+} else {
+hideError(`guestCountry${i}`);
+}
+}
+}
+
+if (!hasGuest) {
+showError('guestName1');
+isValid = false;
+}
+
+// Validate dates
+const checkIn = document.getElementById('checkIn');
+const checkOut = document.getElementById('checkOut');
+
+if (!checkIn.value) {
+showError('checkIn');
+isValid = false;
+} else {
+hideError('checkIn');
+}
+
+if (!checkOut.value) {
+showError('checkOut');
+isValid = false;
+} else if (new Date(checkOut.value) <= new Date(checkIn.value)) {
+showError('checkOut');
+isValid = false;
+} else {
+hideError('checkOut');
+}
+
+// Validate at least one room
+let hasRoom = false;
+for (let i = 1; i <= roomCount; i++) {
+const card = document.querySelector(`[data-room-index="${i}"]`);
+if (!card) continue;
+
+const roomType = document.getElementById(`roomType${i}`);
+const roomPrice = document.getElementById(`roomPrice${i}`);
+
+if (roomType && roomType.value) {
+hasRoom = true;
+hideError(`roomType${i}`);
+
+if (!roomPrice || !roomPrice.value || parseFloat(roomPrice.value) <= 0) {
+showError(`roomPrice${i}`);
+isValid = false;
+} else {
+hideError(`roomPrice${i}`);
+}
+}
+}
+
+if (!hasRoom) {
+showError('roomType1');
+isValid = false;
+}
+
+return isValid;
+}
+
+function showError(fieldId) {
+const field = document.getElementById(fieldId);
+const error = document.getElementById(fieldId + 'Error');
+if (field) field.classList.add('error');
+if (error) error.classList.add('show');
+}
+
+function hideError(fieldId) {
+const field = document.getElementById(fieldId);
+const error = document.getElementById(fieldId + 'Error');
+if (field) field.classList.remove('error');
+if (error) error.classList.remove('show');
+}
+
+async function saveBooking() {
+// Collect client data
+const client = {
+type: document.getElementById('clientType').value,
+name: document.getElementById('clientName').value,
+idCode: document.getElementById('clientIdCode').value,
+email: document.getElementById('clientEmail').value,
+phone: document.getElementById('clientPhone').value
+};
+
+// Collect guests data
+let guests = [];
+for (let i = 1; i <= guestCount; i++) {
+const card = document.querySelector(`[data-guest-index="${i}"]`);
+if (!card) continue;
+
+const name = document.getElementById(`guestName${i}`);
+const idNumber = document.getElementById(`guestIdNumber${i}`);
+const country = document.getElementById(`guestCountry${i}`);
+const phone = document.getElementById(`guestPhone${i}`);
+
+if (name && name.value.trim()) {
+guests.push({
+name: name.value,
+idNumber: idNumber ? idNumber.value : '',
+country: country ? country.value : '',
+phone: phone ? phone.value : ''
+});
+}
+}
+
+// Collect rooms data
+let rooms = [];
+for (let i = 1; i <= roomCount; i++) {
+const card = document.querySelector(`[data-room-index="${i}"]`);
+if (!card) continue;
+
+const roomType = document.getElementById(`roomType${i}`);
+const roomPrice = document.getElementById(`roomPrice${i}`);
+const roomNotes = document.getElementById(`roomNotes${i}`);
+
+if (roomType && roomType.value && roomPrice && roomPrice.value) {
+rooms.push({
+type: roomType.value,
+typeName: roomType.options[roomType.selectedIndex].text,
+price: parseFloat(roomPrice.value),
+notes: roomNotes ? roomNotes.value : ''
+});
+}
+}
+
+// Collect services
+let services = [];
+document.querySelectorAll('input[name="services"]:checked').forEach(cb => {
+services.push(cb.value);
+});
+
+const totalPrice = document.getElementById('totalPrice').textContent.replace('ლ', '');
+
+const bookingData = {
+client: client,
+guests: JSON.stringify(guests),
+rooms: JSON.stringify(rooms),
+checkIn: document.getElementById('checkIn').value,
+checkOut: document.getElementById('checkOut').value,
+services: services,
+totalPrice: parseFloat(totalPrice),
+// For backwards compatibility
+fullName: client.name,
+email: client.email,
+phone: client.phone,
+roomType: rooms.length > 0 ? rooms[0].type : ''
+};
+
+try {
+const response = await fetch('api.php?action=create', { credentials: 'include',
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(bookingData)
+});
+
+const result = await response.json();
+
+if (result.success) {
+showSuccessMessage('✓ დაჯავშნა წარმატებით შეინახა! ინვოისი #' + result.invoiceNumber);
+
+setTimeout(() => {
+document.getElementById('bookingForm').reset();
+document.getElementById('totalPrice').textContent = '0ლ';
+document.getElementById('priceBreakdown').innerHTML = '<p style="color: #999;">აირჩიეთ თარიღები და ოთახები</p>';
+
+// Reset to one room and one guest
+while (roomCount > 1) removeRoom(roomCount);
+while (guestCount > 1) removeGuest(guestCount);
+
+// Switch to bookings list
+const bookingsTab = document.querySelectorAll('.tab-btn')[1];
+switchTab('bookings-list', bookingsTab);
+}, 2000);
+} else {
+alert('შეცდომა: ' + result.message);
+}
+} catch (error) {
+console.error('Error:', error);
+alert('დაჯავშნის შენახვისას მოხდა შეცდომა');
+}
+}
+
+function showSuccessMessage(message) {
+const msg = document.getElementById('successMessage');
+msg.textContent = message;
+msg.classList.add('show');
+setTimeout(() => msg.classList.remove('show'), 4000);
+}
+
+// Tab switching
+function switchTab(tabName, button) {
+document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+document.getElementById(tabName).classList.add('active');
+button.classList.add('active');
+
+if (tabName === 'bookings-list') {
+loadBookings();
+}
+}
+
+// Load bookings
+async function loadBookings() {
+const loadingMessage = document.getElementById('loadingMessage');
+const table = document.getElementById('bookingsTable');
+const noDataMessage = document.getElementById('noDataMessage');
+
+loadingMessage.style.display = 'block';
+table.style.display = 'none';
+noDataMessage.style.display = 'none';
+
+try {
+const response = await fetch('api.php?action=bookings', { credentials: 'include' });
+
+if (response.status === 401) {
+alert('სესია ამოიწურა. გთხოვთ ხელახლა შედით.');
+if (window.top) window.top.location.reload();
+return;
+}
+
+const data = await response.json();
+
+loadingMessage.style.display = 'none';
+
+if (data.success && data.bookings.length > 0) {
+displayBookings(data.bookings);
+table.style.display = 'table';
+} else {
+noDataMessage.style.display = 'block';
+}
+} catch (error) {
+console.error('Error:', error);
+loadingMessage.textContent = 'შეცდომა: მონაცემების ჩატვირთვა ვერ მოხერხდა';
+}
+}
+
+function displayBookings(bookings) {
+const tbody = document.getElementById('bookingsTableBody');
+tbody.innerHTML = '';
+
+// Apply filters
+const emailFilter = document.getElementById('searchEmail').value.toLowerCase();
+const dateFilter = document.getElementById('filterDate').value;
+const statusFilter = document.getElementById('filterStatus').value;
+
+const filteredBookings = bookings.filter(booking => {
+const emailMatch = !emailFilter ||
+(booking.email && booking.email.toLowerCase().includes(emailFilter)) ||
+(booking.client_email && booking.client_email.toLowerCase().includes(emailFilter));
+const dateMatch = !dateFilter || booking.check_in === dateFilter;
+const statusMatch = !statusFilter || booking.status === statusFilter;
+return emailMatch && dateMatch && statusMatch;
+});
+
+filteredBookings.forEach((booking, index) => {
+const row = document.createElement('tr');
+
+const checkInDate = new Date(booking.check_in).toLocaleDateString('ka-GE');
+const checkOutDate = new Date(booking.check_out).toLocaleDateString('ka-GE');
+const clientName = booking.client_name || booking.full_name || '-';
+const clientEmail = booking.client_email || booking.email || '-';
+
+// Store booking data in a global object with unique key
+const bookingKey = `booking_${booking.id}`;
+window[bookingKey] = booking;
+
+row.innerHTML = `
+<td><strong>${booking.invoice_number}</strong></td>
+<td>${clientName}</td>
+<td>${clientEmail}</td>
+<td>${checkInDate}</td>
+<td>${checkOutDate}</td>
+<td><strong>${booking.total_price}ლ</strong></td>
+<td><span class="status ${booking.status}">${getStatusText(booking.status)}</span></td>
+<td class="actions">
+<button class="btn btn-info action-btn" onclick="viewBooking('${bookingKey}')">👁️ ნახვა</button>
+<button class="btn btn-warning action-btn" onclick="editBooking('${bookingKey}')">✏️ შეცვლა</button>
+<button class="btn btn-danger action-btn" onclick="deleteBooking(${booking.id})">🗑️ წაშლა</button>
+<button class="btn btn-primary action-btn" onclick="printInvoice('${bookingKey}')">🖨️ ინვოისი</button>
+</td>
+`;
+
+tbody.appendChild(row);
+});
+}
+
+function getStatusText(status) {
+const statusMap = {
+'confirmed': 'დადასტურებული',
+'checked_in': 'დაბინავებული',
+'checked_out': 'გასული',
+'cancelled': 'გაუქმებული'
+};
+return statusMap[status] || status;
+}
+
+function getCountryName(code) {
+const countries = {
+'georgia': 'საქართველო',
+'russia': 'რუსეთი',
+'turkey': 'თურქეთი',
+'armenia': 'სომხეთი',
+'azerbaijan': 'აზერბაიჯანი',
+'ukraine': 'უკრაინა',
+'usa': 'აშშ',
+'uk': 'დიდი ბრიტანეთი',
+'germany': 'გერმანია',
+'france': 'საფრანგეთი',
+'israel': 'ისრაელი',
+'china': 'ჩინეთი',
+'india': 'ინდოეთი',
+'other': 'სხვა'
+};
+return countries[code] || code;
+}
+
+function viewBooking(bookingKey) {
+const booking = window[bookingKey];
+if (!booking) {
+alert('შეცდომა: დაჯავშნის ინფორმაცია ვერ მოიძებნა');
+return;
+}
+
+const modal = document.getElementById('viewModal');
+const content = document.getElementById('viewModalContent');
+
+let guests = [];
+try {
+guests = booking.guests ? JSON.parse(booking.guests) : [];
+} catch(e) {}
+
+let rooms = [];
+try {
+rooms = booking.rooms ? JSON.parse(booking.rooms) : [];
+} catch(e) {}
+
+let services = [];
+try {
+services = booking.services ? JSON.parse(booking.services) : [];
+} catch(e) {}
+
+let guestsHTML = '';
+guests.forEach((guest, index) => {
+guestsHTML += `
+<div class="info-row">
+<div class="info-label">სტუმარი #${index + 1}:</div>
+<div class="info-value">
+${guest.name} (${guest.idNumber})<br>
+${getCountryName(guest.country)}
+${guest.phone ? ', ' + guest.phone : ''}
+</div>
+</div>
+`;
+});
+
+let roomsHTML = '';
+rooms.forEach((room, index) => {
+roomsHTML += `
+<div class="info-row">
+<div class="info-label">ოთახი #${index + 1}:</div>
+<div class="info-value">
+${room.typeName} - ${room.price}ლ/ღამე
+${room.notes ? '<br>' + room.notes : ''}
+</div>
+</div>
+`;
+});
+
+content.innerHTML = `
+<div class="info-grid">
+<h3 style="color: #667eea; margin-bottom: 10px;">შემკვეთის ინფორმაცია</h3>
+<div class="info-row">
+<div class="info-label">ინვოისი:</div>
+<div class="info-value"><strong>${booking.invoice_number}</strong></div>
+</div>
+<div class="info-row">
+<div class="info-label">ტიპი:</div>
+<div class="info-value">${booking.client_type || 'ფიზიკური პირი'}</div>
+</div>
+<div class="info-row">
+<div class="info-label">სახელი/დასახელება:</div>
+<div class="info-value">${booking.client_name || booking.full_name}</div>
+</div>
+<div class="info-row">
+<div class="info-label">საიდენტიფიკაციო კოდი:</div>
+<div class="info-value">${booking.client_id_code || '—'}</div>
+</div>
+<div class="info-row">
+<div class="info-label">ელ. ფოსტა:</div>
+<div class="info-value">${booking.client_email || booking.email}</div>
+</div>
+<div class="info-row">
+<div class="info-label">ტელეფონი:</div>
+<div class="info-value">${booking.client_phone || booking.phone}</div>
+</div>
+
+<h3 style="color: #667eea; margin: 20px 0 10px;">სტუმრები</h3>
+${guestsHTML || '<p>ინფორმაცია არ არის</p>'}
+
+<h3 style="color: #667eea; margin: 20px 0 10px;">დაჯავშნის დეტალები</h3>
+<div class="info-row">
+<div class="info-label">დაბინავება:</div>
+<div class="info-value">${new Date(booking.check_in).toLocaleDateString('ka-GE')}</div>
+</div>
+<div class="info-row">
+<div class="info-label">გასვლა:</div>
+<div class="info-value">${new Date(booking.check_out).toLocaleDateString('ka-GE')}</div>
+</div>
+<div class="info-row">
+<div class="info-label">სტატუსი:</div>
+<div class="info-value"><span class="status ${booking.status}">${getStatusText(booking.status)}</span></div>
+</div>
+
+<h3 style="color: #667eea; margin: 20px 0 10px;">ოთახები</h3>
+${roomsHTML || '<p>ინფორმაცია არ არის</p>'}
+
+${services.length > 0 ? `
+<h3 style="color: #667eea; margin: 20px 0 10px;">სერვისები</h3>
+<div class="info-row">
+<div class="info-value">${services.join(', ')}</div>
+</div>
+` : ''}
+
+<div class="info-row" style="background: #667eea; color: white; margin-top: 20px;">
+<div class="info-label" style="color: white;">სულ თანხა:</div>
+<div class="info-value" style="font-size: 24px; font-weight: bold;">${booking.total_price}ლ</div>
+</div>
+</div>
+`;
+
+modal.classList.add('show');
+}
+
+function closeViewModal() {
+document.getElementById('viewModal').classList.remove('show');
+}
+
+function editBooking(bookingKey) {
+const booking = window[bookingKey];
+if (!booking) {
+alert('შეცდომა: დაჯავშნის ინფორმაცია ვერ მოიძებნა');
+return;
+}
+
+const modal = document.getElementById('editModal');
+const content = document.getElementById('editModalContent');
+
+content.innerHTML = `
+<form id="editForm" onsubmit="saveEditedBooking(event, ${booking.id})">
+<div class="form-group">
+<label>სტატუსი</label>
+<select id="editStatus" required>
+<option value="confirmed" ${booking.status === 'confirmed' ? 'selected' : ''}>დადასტურებული</option>
+<option value="checked_in" ${booking.status === 'checked_in' ? 'selected' : ''}>დაბინავებული</option>
+<option value="checked_out" ${booking.status === 'checked_out' ? 'selected' : ''}>გასული</option>
+<option value="cancelled" ${booking.status === 'cancelled' ? 'selected' : ''}>გაუქმებული</option>
+</select>
+</div>
+<div class="row">
+<div class="form-group">
+<label>დაბინავება</label>
+<input type="date" id="editCheckIn" value="${booking.check_in}" required>
+</div>
+<div class="form-group">
+<label>გასვლა</label>
+<input type="date" id="editCheckOut" value="${booking.check_out}" required>
+</div>
+</div>
+<div class="form-group">
+<label>შენიშვნა</label>
+<textarea id="editNotes" rows="3">${booking.notes || ''}</textarea>
+</div>
+<button type="submit" class="btn btn-primary btn-full">💾 შენახვა</button>
+</form>
+`;
+
+modal.classList.add('show');
+}
+
+function closeEditModal() {
+document.getElementById('editModal').classList.remove('show');
+}
+
+async function saveEditedBooking(event, bookingId) {
+event.preventDefault();
+
+const status = document.getElementById('editStatus').value;
+const checkIn = document.getElementById('editCheckIn').value;
+const checkOut = document.getElementById('editCheckOut').value;
+const notes = document.getElementById('editNotes').value;
+
+try {
+const response = await fetch(`api.php?action=update&id=${bookingId}&_method=PUT`, { credentials: 'include',
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify({
+status: status,
+checkIn: checkIn,
+checkOut: checkOut,
+notes: notes
+})
+});
+
+const result = await response.json();
+
+if (result.success) {
+showSuccessMessage('✓ დაჯავშნა წარმატებით განახლდა');
+closeEditModal();
+loadBookings();
+} else {
+alert('შეცდომა: ' + result.message);
+}
+} catch (error) {
+console.error('Error:', error);
+alert('განახლებისას მოხდა შეცდომა');
+}
+}
+
+async function deleteBooking(id) {
+if (!confirm('დარწმუნებული ხართ რომ გსურთ ამ დაჯავშნის წაშლა?')) {
+return;
+}
+
+try {
+const response = await fetch(`api.php?action=delete&id=${id}&_method=DELETE`, { credentials: 'include',
+method: 'POST'
+});
+
+const result = await response.json();
+
+if (result.success) {
+showSuccessMessage('✓ დაჯავშნა წარმატებით წაიშალა');
+loadBookings();
+} else {
+alert('შეცდომა: ' + result.message);
+}
+} catch (error) {
+console.error('Error:', error);
+alert('წაშლისას მოხდა შეცდომა');
+}
+}
+
+function printInvoice(bookingKey) {
+const booking = window[bookingKey];
+if (!booking) {
+alert('შეცდომა: დაჯავშნის ინფორმაცია ვერ მოიძებნა');
+return;
+}
+
+window.currentBookingForInvoice = booking;
+showDateRangeModal();
+}
+
+function showDateRangeModal() {
+const booking = window.currentBookingForInvoice;
+const checkIn = booking.check_in;
+const checkOut = booking.check_out;
+
+const inDate = new Date(checkIn);
+const outDate = new Date(checkOut);
+const totalNights = Math.ceil((outDate - inDate) / (1000 * 60 * 60 * 24));
+
+// თვეების გადაკვეთის შემოწმება
+const spansTwoMonths = inDate.getMonth() !== outDate.getMonth() || inDate.getFullYear() !== outDate.getFullYear();
+
+const modal = document.getElementById('editModal');
+const content = document.getElementById('editModalContent');
+
+content.innerHTML = `
+<div style="padding: 20px;">
+<h3 style="color: #667eea; margin-bottom: 20px;">🖨️ ინვოისის პარამეტრები</h3>
+
+<div style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+<div style="font-size: 13px; color: #666; margin-bottom: 8px;">სრული ჯავშანი:</div>
+<div style="font-weight: 600;">${checkIn} → ${checkOut} (${totalNights} ღამე)</div>
+</div>
+
+${spansTwoMonths ? `
+<div style="background: #fff3cd; border-radius: 8px; padding: 12px; margin-bottom: 15px; font-size: 12px; color: #856404;">
+⚠️ ეს ჯავშანი ორ თვეს მოიცავს. შეგიძლიათ თარიღები შეცვალოთ ნაწილობრივი ინვოისისთვის.
+</div>
+` : ''}
+
+<div style="display: flex; gap: 15px; margin-bottom: 20px;">
+<div style="flex: 1;">
+<label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#555;">ინვოისის დაწყება:</label>
+<input type="date" id="invoiceFrom" value="${checkIn}" min="${checkIn}" max="${checkOut}"
+style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:6px; font-size:14px;"
+onchange="updateInvoicePreview()">
+</div>
+<div style="flex: 1;">
+<label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#555;">ინვოისის დასრულება:</label>
+<input type="date" id="invoiceTo" value="${checkOut}" min="${checkIn}" max="${checkOut}"
+style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:6px; font-size:14px;"
+onchange="updateInvoicePreview()">
+</div>
+</div>
+
+<div id="invoicePreview" style="background: #e8f5e9; border-radius: 8px; padding: 12px; margin-bottom: 20px; text-align: center;">
+<span style="font-size: 20px; font-weight: 700; color: #2e7d32;">${totalNights}</span>
+<span style="color: #555; font-size: 13px;"> ღამე ინვოისში</span>
+</div>
+
+<div style="margin-bottom: 15px;">
+<label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#555;">ინვოისის ნომერი:</label>
+<input type="text" id="invoiceNumberOverride" value="${booking.invoice_number}"
+style="width:100%; padding:10px; border:2px solid #e0e0e0; border-radius:6px; font-size:14px;"
+placeholder="მაგ: INV-001/1">
+<div style="font-size:11px; color:#999; margin-top:3px;">ნაწილობრივი ინვოისისთვის შეგიძლიათ /1, /2 დაუმატოთ</div>
+</div>
+
+<h4 style="color: #667eea; margin-bottom: 15px;">აირჩიეთ ენა:</h4>
+<div style="display: flex; gap: 15px; justify-content: center;">
+<button class="btn btn-primary" style="padding: 15px 35px; font-size: 16px;" onclick="generateInvoiceWithRange('ka')">
+🇬🇪 ქართული
+</button>
+<button class="btn btn-info" style="padding: 15px 35px; font-size: 16px;" onclick="generateInvoiceWithRange('en')">
+🇬🇧 English
+</button>
+</div>
+</div>
+`;
+
+modal.classList.add('show');
+}
+
+function updateInvoicePreview() {
+const from = new Date(document.getElementById('invoiceFrom').value);
+const to = new Date(document.getElementById('invoiceTo').value);
+const nights = Math.ceil((to - from) / (1000 * 60 * 60 * 24));
+const preview = document.getElementById('invoicePreview');
+
+if (nights <= 0) {
+preview.innerHTML = '<span style="color: #e74c3c; font-size: 13px;">⚠️ არასწორი თარიღები</span>';
+} else {
+preview.innerHTML = `
+<span style="font-size: 20px; font-weight: 700; color: #2e7d32;">${nights}</span>
+<span style="color: #555; font-size: 13px;"> ღამე ინვოისში</span>
+`;
+}
+}
+
+function generateInvoiceWithRange(lang) {
+const booking = window.currentBookingForInvoice;
+const invoiceFrom = document.getElementById('invoiceFrom').value;
+const invoiceTo = document.getElementById('invoiceTo').value;
+const invoiceNumber = document.getElementById('invoiceNumberOverride').value || booking.invoice_number;
+
+const fromDate = new Date(invoiceFrom);
+const toDate = new Date(invoiceTo);
+const nights = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
+
+if (nights <= 0) {
+alert('არასწორი თარიღები');
+return;
+}
+
+closeEditModal();
+
+// Override booking data for invoice
+const invoiceBooking = {...booking};
+invoiceBooking.check_in = invoiceFrom;
+invoiceBooking.check_out = invoiceTo;
+invoiceBooking.invoice_number = invoiceNumber;
+invoiceBooking._customNights = nights;
+
+// რეკალკულაცია: total_price = ოთახების ფასი × ღამეები
+let rooms = [];
+try { rooms = booking.rooms ? JSON.parse(booking.rooms) : []; } catch(e) {}
+let roomsTotal = 0;
+rooms.forEach(r => { roomsTotal += (r.price || 0) * nights; });
+invoiceBooking.total_price = roomsTotal;
+
+window.currentBookingForInvoice = invoiceBooking;
+generateInvoice(lang);
+}
+
+function generateInvoice(lang) {
+const booking = window.currentBookingForInvoice;
+closeEditModal();
+
+if (!booking) {
+alert('შეცდომა: დაჯავშნის ინფორმაცია ვერ მოიძებნა');
+return;
+}
+
+let guests = [];
+try {
+guests = booking.guests ? JSON.parse(booking.guests) : [];
+} catch(e) {}
+
+let rooms = [];
+try {
+rooms = booking.rooms ? JSON.parse(booking.rooms) : [];
+} catch(e) {}
+
+const checkIn = new Date(booking.check_in);
+const checkOut = new Date(booking.check_out);
+const nights = booking._customNights || Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+
+const t = lang === 'ka' ? {
+title: 'HOTEL 725',
+invoice: 'ინვოისი',
+date: 'თარიღი',
+companyName: 'შპს NASCAR',
+idCode: 'საიდენტიფიკაციო კოდი',
+address: 'მისამართი',
+phone: 'ტელეფონი',
+mobile: 'მობ',
+bankDetails: 'საბანკო რეკვიზიტები',
+recipientBank: 'მიმღების ბანკი',
+bankCode: 'ბანკის კოდი',
+accountNumber: 'ა/ა',
+clientInfo: 'შემკვეთის ინფორმაცია',
+type: 'ტიპი',
+name: 'სახელი/დასახელება',
+email: 'ელ. ფოსტა',
+clientPhone: 'ტელეფონი',
+guests: 'სტუმრები',
+bookingDetails: 'დაჯავშნის დეტალები',
+checkIn: 'დაბინავება',
+checkOut: 'გასვლა',
+nights: 'ღამეების რაოდენობა',
+nightsText: 'ღამე',
+prices: 'ფასები',
+service: 'სერვისი',
+pricePerNight: 'ფასი/ღამე',
+quantity: 'რაოდენობა',
+total: 'სულ',
+totalAmount: 'სულ გადასახდელი',
+currency: 'ლ',
+thankYou: 'გმადლობთ ჩვენი სასტუმროს არჩევისთვის!',
+noInfo: 'ინფორმაცია არ არის',
+room: 'ოთახი',
+addressText: 'ქ. ბათუმი, ფრიდინ ხალვაშის გამზირი 45ა/42',
+bankName: 'სს "პროკრედიტ ბანკი"'
+} : {
+title: 'HOTEL 725',
+invoice: 'Invoice',
+date: 'Date',
+companyName: 'LLC NASCAR',
+idCode: 'ID Code',
+address: 'Address',
+phone: 'Phone',
+mobile: 'Mobile',
+bankDetails: 'Bank Details',
+recipientBank: 'Recipient Bank',
+bankCode: 'Bank Code',
+accountNumber: 'Account',
+clientInfo: 'Client Information',
+type: 'Type',
+name: 'Name',
+email: 'Email',
+clientPhone: 'Phone',
+guests: 'Guests',
+bookingDetails: 'Booking Details',
+checkIn: 'Check-in',
+checkOut: 'Check-out',
+nights: 'Number of Nights',
+nightsText: 'night(s)',
+prices: 'Prices',
+service: 'Service',
+pricePerNight: 'Price/Night',
+quantity: 'Quantity',
+total: 'Total',
+totalAmount: 'Total Amount',
+currency: 'GEL',
+thankYou: 'Thank you for choosing our hotel!',
+noInfo: 'No information',
+room: 'Room',
+addressText: 'Batumi, Fridon Khalvashi Ave. 45a/42',
+bankName: 'JSC "ProCredit Bank"'
+};
+
+let guestsHTML = guests.map((g, i) =>
+`${i + 1}. ${g.name} (${g.idNumber}) - ${getCountryNameLang(g.country, lang)}`
+).join('<br>');
+
+let roomsHTML = '';
+rooms.forEach((room, i) => {
+const total = room.price * nights;
+roomsHTML += `
+<tr>
+<td>${t.room} #${i + 1}: ${getRoomTypeNameLang(room.type, lang)}</td>
+<td style="text-align: right;">${room.price}${t.currency}</td>
+<td style="text-align: right;">${nights}</td>
+<td style="text-align: right;"><strong>${total}${t.currency}</strong></td>
+</tr>
+`;
+});
+
+const clientType = lang === 'ka' ? {
+'individual': 'ფიზიკური პირი',
+'agency': 'ტურისტული სააგენტო',
+'company': 'კომპანია'
+}[booking.client_type || 'individual'] : {
+'individual': 'Individual',
+'agency': 'Travel Agency',
+'company': 'Company'
+}[booking.client_type || 'individual'];
+
+const invoiceHTML = `
+<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+<meta charset="utf-8">
+<title>${t.invoice} ${booking.invoice_number} - ${t.title}</title>
+<style>
+@page {
+size: A4;
+margin: 10mm;
+}
+body {
+font-family: 'Sylfaen', 'Arial', 'DejaVu Sans', sans-serif;
+padding: 0;
+margin: 0;
+font-size: 11px;
+color: #333;
+}
+.invoice-container {
+max-width: 190mm;
+margin: 0 auto;
+padding: 5px;
+background: white;
+}
+.header {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 15px;
+padding-bottom: 10px;
+border-bottom: 3px solid #1a5490;
+}
+.company-info {
+flex: 1;
+}
+.hotel-name {
+font-size: 24px;
+font-weight: bold;
+color: #1a5490;
+margin-bottom: 5px;
+letter-spacing: 2px;
+}
+.company-name {
+font-size: 14px;
+font-weight: 600;
+color: #333;
+margin-bottom: 5px;
+}
+.company-details {
+font-size: 11px;
+line-height: 1.6;
+color: #666;
+}
+.invoice-info {
+text-align: right;
+flex: 0 0 auto;
+}
+.invoice-number {
+font-size: 18px;
+font-weight: bold;
+color: #1a5490;
+margin-bottom: 5px;
+}
+.invoice-date {
+font-size: 12px;
+color: #666;
+}
+.section {
+margin-bottom: 12px;
+page-break-inside: avoid;
+}
+.section-title {
+color: #1a5490;
+font-size: 12px;
+font-weight: 700;
+border-bottom: 2px solid #e0e0e0;
+padding-bottom: 5px;
+margin-bottom: 8px;
+}
+table {
+width: 100%;
+border-collapse: collapse;
+margin-top: 5px;
+}
+th, td {
+padding: 6px 8px;
+text-align: left;
+border-bottom: 1px solid #e0e0e0;
+font-size: 10px;
+}
+th {
+background: #f8f9fa;
+font-weight: 700;
+color: #1a5490;
+}
+.total-row {
+background: #1a5490;
+color: white;
+font-size: 13px;
+font-weight: bold;
+}
+.info-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 6px;
+}
+.info-item {
+background: #f8f9fa;
+padding: 6px 8px;
+border-radius: 4px;
+border-left: 3px solid #1a5490;
+}
+.info-label {
+font-size: 10px;
+color: #666;
+margin-bottom: 3px;
+font-weight: 600;
+}
+.info-value {
+font-size: 12px;
+color: #333;
+font-weight: 500;
+}
+.bank-details {
+background: #f0f4f8;
+padding: 15px;
+border-radius: 8px;
+border: 1px solid #d0dae6;
+margin-top: 15px;
+}
+.bank-row {
+display: flex;
+justify-content: space-between;
+padding: 5px 0;
+font-size: 11px;
+}
+.bank-label {
+font-weight: 600;
+color: #555;
+}
+.bank-value {
+color: #333;
+font-weight: 500;
+}
+.guests-list {
+padding: 12px;
+background: #f8f9fa;
+border-radius: 5px;
+line-height: 1.8;
+font-size: 11px;
+}
+.footer {
+text-align: center;
+margin-top: 40px;
+padding-top: 20px;
+border-top: 2px solid #e0e0e0;
+color: #666;
+font-size: 11px;
+}
+.footer-thank-you {
+font-size: 14px;
+font-weight: 600;
+color: #1a5490;
+margin-bottom: 10px;
+}
+.contact-info {
+margin-top: 8px;
+font-size: 10px;
+}
+@media print {
+.invoice-container { padding: 0; }
+body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.section { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="invoice-container">
+<div class="header">
+<div class="company-info">
+<div class="hotel-name">${t.title}</div>
+<div class="company-name">${t.companyName}</div>
+<div class="company-details">
+${t.idCode}: 445418423<br>
+${t.address}: ${t.addressText}<br>
+${t.phone}: 0422 228 725 | ${t.mobile}: +995 555 334 725
+</div>
+</div>
+<div class="invoice-info">
+<div class="invoice-number">${t.invoice} #${booking.invoice_number}</div>
+<div class="invoice-date">${t.date}: ${new Date().toLocaleDateString(lang === 'ka' ? 'ka-GE' : 'en-US')}</div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">${t.clientInfo}</div>
+<div class="info-grid">
+<div class="info-item">
+<div class="info-label">${t.type}</div>
+<div class="info-value">${clientType}</div>
+</div>
+<div class="info-item">
+<div class="info-label">${t.name}</div>
+<div class="info-value">${booking.client_name || booking.full_name}</div>
+</div>
+<div class="info-item">
+<div class="info-label">${t.idCode}</div>
+<div class="info-value">${booking.client_id_code || '-'}</div>
+</div>
+<div class="info-item">
+<div class="info-label">${t.email}</div>
+<div class="info-value">${booking.client_email || booking.email}</div>
+</div>
+<div class="info-item">
+<div class="info-label">${t.clientPhone}</div>
+<div class="info-value">${booking.client_phone || booking.phone}</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">${t.guests}</div>
+<div class="guests-list">${guestsHTML || t.noInfo}</div>
+</div>
+
+<div class="section">
+<div class="section-title">${t.bookingDetails}</div>
+<div class="info-grid">
+<div class="info-item">
+<div class="info-label">${t.checkIn}</div>
+<div class="info-value">${checkIn.toLocaleDateString(lang === 'ka' ? 'ka-GE' : 'en-US')}</div>
+</div>
+<div class="info-item">
+<div class="info-label">${t.checkOut}</div>
+<div class="info-value">${checkOut.toLocaleDateString(lang === 'ka' ? 'ka-GE' : 'en-US')}</div>
+</div>
+<div class="info-item" style="grid-column: span 2;">
+<div class="info-label">${t.nights}</div>
+<div class="info-value">${nights} ${t.nightsText}</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">${t.prices}</div>
+<table>
+<thead>
+<tr>
+<th>${t.service}</th>
+<th style="text-align: right;">${t.pricePerNight}</th>
+<th style="text-align: right;">${t.quantity}</th>
+<th style="text-align: right;">${t.total}</th>
+</tr>
+</thead>
+<tbody>
+${roomsHTML}
+<tr class="total-row">
+<td colspan="3" style="text-align: right; padding-right: 20px;">${t.totalAmount}:</td>
+<td style="text-align: right;"><strong>${booking.total_price}${t.currency}</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="section">
+<div class="section-title">${t.bankDetails}</div>
+<div class="bank-details">
+<div class="bank-row">
+<span class="bank-label">${t.recipientBank}:</span>
+<span class="bank-value">${t.bankName}</span>
+</div>
+<div class="bank-row">
+<span class="bank-label">${t.bankCode}:</span>
+<span class="bank-value">MIBGGE22</span>
+</div>
+<div class="bank-row">
+<span class="bank-label">${t.accountNumber}:</span>
+<span class="bank-value">GE37PC0033600100055682</span>
+</div>
+</div>
+</div>
+
+<div class="footer">
+<div class="footer-thank-you">${t.thankYou}</div>
+<div class="contact-info">
+${t.title} • ${t.addressText}<br>
+${t.phone}: 0422 228 725 • ${t.mobile}: +995 555 334 725<br>
+Email: info@hotel725.ge • Web: www.hotel725.ge
+</div>
+</div>
+</div>
+</body>
+</html>
+`;
+
+const printWindow = window.open('', '_blank');
+printWindow.document.write(invoiceHTML);
+printWindow.document.close();
+setTimeout(() => {
+printWindow.print();
+}, 250);
+}
+
+function getCountryNameLang(code, lang) {
+const countries = {
+ka: {
+'georgia': 'საქართველო', 'russia': 'რუსეთი', 'turkey': 'თურქეთი',
+'armenia': 'სომხეთი', 'azerbaijan': 'აზერბაიჯანი', 'ukraine': 'უკრაინა',
+'usa': 'აშშ', 'uk': 'დიდი ბრიტანეთი', 'germany': 'გერმანია',
+'france': 'საფრანგეთი', 'israel': 'ისრაელი', 'china': 'ჩინეთი',
+'india': 'ინდოეთი', 'other': 'სხვა'
+},
+en: {
+'georgia': 'Georgia', 'russia': 'Russia', 'turkey': 'Turkey',
+'armenia': 'Armenia', 'azerbaijan': 'Azerbaijan', 'ukraine': 'Ukraine',
+'usa': 'USA', 'uk': 'United Kingdom', 'germany': 'Germany',
+'france': 'France', 'israel': 'Israel', 'china': 'China',
+'india': 'India', 'other': 'Other'
+}
+};
+return countries[lang][code] || code;
+}
+
+function getRoomTypeNameLang(code, lang) {
+const rooms = {
+ka: {
+'single': 'Single - ერთადგილიანი',
+'double': 'Double - ორადგილიანი',
+'twin': 'Twin - ორადგილიანი (ორი საწოლი)',
+'triple': 'Triple - სამადგილიანი',
+'lux': 'LUX - ლუქს ნომერი',
+'extra_bed': 'Extra Bed - დამატებითი საწოლი'
+},
+en: {
+'single': 'Single Room',
+'double': 'Double Room',
+'twin': 'Twin Room (Two Beds)',
+'triple': 'Triple Room',
+'lux': 'LUX Room',
+'extra_bed': 'Extra Bed'
+}
+};
+return rooms[lang][code] || code;
+}
+
+function clearFilters() {
+document.getElementById('searchEmail').value = '';
+document.getElementById('filterDate').value = '';
+document.getElementById('filterStatus').value = '';
+loadBookings();
+}
+
+// === კლიენტის Autocomplete ===
+(function() {
+let acTimeout = null;
+const nameInput = document.getElementById('clientName');
+const codeInput = document.getElementById('clientIdCode');
+const dropName = document.getElementById('acDropdownName');
+const dropCode = document.getElementById('acDropdownCode');
+
+nameInput.addEventListener('input', function() {
+clearTimeout(acTimeout);
+const q = this.value.trim();
+if (q.length < 2) { dropName.classList.remove('show'); return; }
+acTimeout = setTimeout(() => acSearch(q, dropName), 300);
+});
+
+codeInput.addEventListener('input', function() {
+clearTimeout(acTimeout);
+const q = this.value.trim();
+if (q.length < 2) { dropCode.classList.remove('show'); return; }
+acTimeout = setTimeout(() => acSearch(q, dropCode), 300);
+});
+
+document.addEventListener('click', function(e) {
+if (!e.target.closest('#clientName') && !e.target.closest('#acDropdownName')) dropName.classList.remove('show');
+if (!e.target.closest('#clientIdCode') && !e.target.closest('#acDropdownCode')) dropCode.classList.remove('show');
+});
+
+async function acSearch(query, dropdown) {
+try {
+const res = await fetch('get_realizations.php?action=clients_search&q=' + encodeURIComponent(query), { credentials: 'include' });
+const json = await res.json();
+if (json.success && json.data.length > 0) {
+dropdown.innerHTML = json.data.map(c => {
+const icon = c.client_type === 'company' ? '🏢' : '👤';
+const det = [c.id_code, c.phone, c.email].filter(x => x).join(' • ');
+return `<div class="ac-item" data-client='${JSON.stringify(c).replace(/'/g,"&#39;")}' onclick="acSelect(this)">
+<div class="ac-name">${icon} ${c.client_name}</div>
+${det ? '<div class="ac-detail">' + det + '</div>' : ''}
+</div>`;
+}).join('');
+dropdown.classList.add('show');
+} else {
+dropdown.classList.remove('show');
+}
+} catch(e) { dropdown.classList.remove('show'); }
+}
+})();
+
+function acSelect(el) {
+const c = JSON.parse(el.dataset.client);
+document.getElementById('clientName').value = c.client_name || '';
+document.getElementById('clientIdCode').value = c.id_code || '';
+document.getElementById('clientEmail').value = c.email || document.getElementById('clientEmail').value || '';
+document.getElementById('clientPhone').value = c.phone || document.getElementById('clientPhone').value || '';
+// ტიპიც თუ აქვს
+const typeSelect = document.getElementById('clientType');
+if (typeSelect && c.client_type) typeSelect.value = c.client_type;
+document.getElementById('acDropdownName').classList.remove('show');
+document.getElementById('acDropdownCode').classList.remove('show');
+}
+</script>
+
+
+</body>
+</html>
